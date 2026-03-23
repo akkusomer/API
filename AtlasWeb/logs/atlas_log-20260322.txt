@@ -1,0 +1,12 @@
+2026-03-22 03:01:01.409 +03:00 [INF] User profile is available. Using 'C:\Users\User\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-03-22 03:01:01.646 +03:00 [INF] Now listening on: https://localhost:7028
+2026-03-22 03:01:01.647 +03:00 [INF] Now listening on: http://localhost:5291
+2026-03-22 03:01:01.742 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-03-22 03:01:01.743 +03:00 [INF] Hosting environment: Development
+2026-03-22 03:01:01.744 +03:00 [INF] Content root path: C:\Users\User\source\repos\AtlasWeb\AtlasWeb
+2026-03-22 03:01:02.423 +03:00 [INF] Request starting HTTP/2 GET https://localhost:7028/_framework/aspnetcore-browser-refresh.js - null null
+2026-03-22 03:01:02.423 +03:00 [INF] Request starting HTTP/2 GET https://localhost:7028/_vs/browserLink - null null
+2026-03-22 03:01:02.450 +03:00 [INF] Request finished HTTP/2 GET https://localhost:7028/_framework/aspnetcore-browser-refresh.js - 200 16501 application/javascript; charset=utf-8 36.9605ms
+2026-03-22 03:01:02.482 +03:00 [INF] Request finished HTTP/2 GET https://localhost:7028/_vs/browserLink - 200 null text/javascript; charset=UTF-8 69.9803ms
+2026-03-22 03:01:02.532 +03:00 [INF] Request starting HTTP/2 GET https://localhost:7028/swagger/v1/swagger.json - null null
+2026-03-22 03:01:02.581 +03:00 [INF] Request finished HTTP/2 GET https://localhost:7028/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 50.0308ms

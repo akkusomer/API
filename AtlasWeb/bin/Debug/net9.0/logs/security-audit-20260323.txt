@@ -1,0 +1,4 @@
+2026-03-23 21:27:24.123 +03:00 [INF] Now listening on: http://localhost:5000
+2026-03-23 21:27:24.164 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-03-23 21:27:24.165 +03:00 [INF] Hosting environment: Production
+2026-03-23 21:27:24.166 +03:00 [INF] Content root path: C:\Users\User\Desktop\AtlasWeb\AtlasWeb\bin\Debug\net9.0

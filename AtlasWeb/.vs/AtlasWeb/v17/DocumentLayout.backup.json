@@ -1,0 +1,406 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\User\\source\\repos\\AtlasWeb\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\middlewares\\adaptivethrottlingmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\middlewares\\adaptivethrottlingmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\data\\atlasdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\data\\atlasdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\data\\configurations\\entityconfigurationextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\data\\configurations\\entityconfigurationextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\models\\kullanici.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\models\\kullanici.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\models\\baseentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\models\\baseentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\services\\idgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\services\\idgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\data\\modelbuilderextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\data\\modelbuilderextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\models\\interfaces.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\models\\interfaces.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\models\\fatura.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\models\\fatura.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\middlewares\\securitycircuitbreaker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\middlewares\\securitycircuitbreaker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\middlewares\\exceptionmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\middlewares\\exceptionmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\services\\baseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\services\\baseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\services\\currentuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\services\\currentuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\models\\auditlog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\models\\auditlog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\models\\kullanicitoken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\models\\kullanicitoken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\controllers\\mustericontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\controllers\\mustericontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\dtos\\tokendto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\dtos\\tokendto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\migrations\\20260322004323_updateuseridtoguid.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\migrations\\20260322004323_updateuseridtoguid.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\migrations\\20260322002707_v6_the_ultimate_void.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\migrations\\20260322002707_v6_the_ultimate_void.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\migrations\\20260322001257_v4_architect_final.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\migrations\\20260322001257_v4_architect_final.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|c:\\users\\user\\source\\repos\\atlasweb\\atlasweb\\migrations\\20260321225200_kullanicitablosueklendi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE83F2-4AE4-40E1-998F-A1D172C71FBF}|AtlasWeb\\AtlasWeb.csproj|solutionrelative:atlasweb\\migrations\\20260321225200_kullanicitablosueklendi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 185,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Program.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Program.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Program.cs",
+              "RelativeToolTip": "AtlasWeb\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T22:21:38.001Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AdaptiveThrottlingMiddleware.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Middlewares\\AdaptiveThrottlingMiddleware.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Middlewares\\AdaptiveThrottlingMiddleware.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Middlewares\\AdaptiveThrottlingMiddleware.cs",
+              "RelativeToolTip": "AtlasWeb\\Middlewares\\AdaptiveThrottlingMiddleware.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-22T00:50:09.662Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "IdGenerator.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Services\\IdGenerator.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Services\\IdGenerator.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Services\\IdGenerator.cs",
+              "RelativeToolTip": "AtlasWeb\\Services\\IdGenerator.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-22T00:49:16.001Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "20260322004323_UpdateUserIdToGuid.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Migrations\\20260322004323_UpdateUserIdToGuid.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Migrations\\20260322004323_UpdateUserIdToGuid.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Migrations\\20260322004323_UpdateUserIdToGuid.cs",
+              "RelativeToolTip": "AtlasWeb\\Migrations\\20260322004323_UpdateUserIdToGuid.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-22T00:43:23.769Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ModelBuilderExtensions.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Data\\ModelBuilderExtensions.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Data\\ModelBuilderExtensions.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Data\\ModelBuilderExtensions.cs",
+              "RelativeToolTip": "AtlasWeb\\Data\\ModelBuilderExtensions.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-22T00:07:33.879Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Interfaces.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Models\\Interfaces.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Models\\Interfaces.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Models\\Interfaces.cs",
+              "RelativeToolTip": "AtlasWeb\\Models\\Interfaces.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-22T00:04:04.923Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "BaseEntity.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Models\\BaseEntity.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Models\\BaseEntity.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Models\\BaseEntity.cs",
+              "RelativeToolTip": "AtlasWeb\\Models\\BaseEntity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T23:56:37.872Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Fatura.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Models\\Fatura.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Models\\Fatura.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Models\\Fatura.cs",
+              "RelativeToolTip": "AtlasWeb\\Models\\Fatura.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T23:46:07.031Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "AtlasWeb\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAHcAAAAAAAAAAAAIwK0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T22:56:47.031Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AtlasDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Data\\AtlasDbContext.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Data\\AtlasDbContext.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Data\\AtlasDbContext.cs",
+              "RelativeToolTip": "AtlasWeb\\Data\\AtlasDbContext.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAAmwEEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T23:43:16.346Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Kullanici.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Models\\Kullanici.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Models\\Kullanici.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Models\\Kullanici.cs",
+              "RelativeToolTip": "AtlasWeb\\Models\\Kullanici.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T22:51:35.211Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "EntityConfigurationExtensions.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Data\\Configurations\\EntityConfigurationExtensions.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Data\\Configurations\\EntityConfigurationExtensions.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Data\\Configurations\\EntityConfigurationExtensions.cs",
+              "RelativeToolTip": "AtlasWeb\\Data\\Configurations\\EntityConfigurationExtensions.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-22T00:38:32.338Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "20260322002707_V6_The_Ultimate_Void.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Migrations\\20260322002707_V6_The_Ultimate_Void.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Migrations\\20260322002707_V6_The_Ultimate_Void.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Migrations\\20260322002707_V6_The_Ultimate_Void.cs",
+              "RelativeToolTip": "AtlasWeb\\Migrations\\20260322002707_V6_The_Ultimate_Void.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-22T00:27:08.349Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "SecurityCircuitBreaker.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Middlewares\\SecurityCircuitBreaker.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Middlewares\\SecurityCircuitBreaker.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Middlewares\\SecurityCircuitBreaker.cs",
+              "RelativeToolTip": "AtlasWeb\\Middlewares\\SecurityCircuitBreaker.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-22T00:30:18.572Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "AuditLog.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Models\\AuditLog.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Models\\AuditLog.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Models\\AuditLog.cs",
+              "RelativeToolTip": "AtlasWeb\\Models\\AuditLog.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-22T00:04:38.879Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "ExceptionMiddleware.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Middlewares\\ExceptionMiddleware.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Middlewares\\ExceptionMiddleware.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Middlewares\\ExceptionMiddleware.cs",
+              "RelativeToolTip": "AtlasWeb\\Middlewares\\ExceptionMiddleware.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T23:47:18.724Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "20260322001257_V4_Architect_Final.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Migrations\\20260322001257_V4_Architect_Final.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Migrations\\20260322001257_V4_Architect_Final.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Migrations\\20260322001257_V4_Architect_Final.cs",
+              "RelativeToolTip": "AtlasWeb\\Migrations\\20260322001257_V4_Architect_Final.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-22T00:12:58.076Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "BaseService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Services\\BaseService.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Services\\BaseService.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Services\\BaseService.cs",
+              "RelativeToolTip": "AtlasWeb\\Services\\BaseService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-22T00:20:28.302Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "KullaniciToken.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Models\\KullaniciToken.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Models\\KullaniciToken.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Models\\KullaniciToken.cs",
+              "RelativeToolTip": "AtlasWeb\\Models\\KullaniciToken.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T23:45:14.894Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "CurrentUserService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Services\\CurrentUserService.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Services\\CurrentUserService.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Services\\CurrentUserService.cs",
+              "RelativeToolTip": "AtlasWeb\\Services\\CurrentUserService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T23:40:38.896Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "TokenDto.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\DTOs\\TokenDto.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\DTOs\\TokenDto.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\DTOs\\TokenDto.cs",
+              "RelativeToolTip": "AtlasWeb\\DTOs\\TokenDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T23:30:17.452Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\appsettings.json",
+              "RelativeDocumentMoniker": "AtlasWeb\\appsettings.json",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\appsettings.json",
+              "RelativeToolTip": "AtlasWeb\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-03-21T23:09:59.964Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "20260321225200_KullaniciTablosuEklendi.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Migrations\\20260321225200_KullaniciTablosuEklendi.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Migrations\\20260321225200_KullaniciTablosuEklendi.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Migrations\\20260321225200_KullaniciTablosuEklendi.cs",
+              "RelativeToolTip": "AtlasWeb\\Migrations\\20260321225200_KullaniciTablosuEklendi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T22:52:00.854Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "MusteriController.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Controllers\\MusteriController.cs",
+              "RelativeDocumentMoniker": "AtlasWeb\\Controllers\\MusteriController.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\AtlasWeb\\AtlasWeb\\Controllers\\MusteriController.cs",
+              "RelativeToolTip": "AtlasWeb\\Controllers\\MusteriController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T22:24:36.534Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

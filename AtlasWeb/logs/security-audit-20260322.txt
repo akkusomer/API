@@ -1,0 +1,89 @@
+2026-03-22 03:42:51.162 +03:00 [INF] Now listening on: https://localhost:7028
+2026-03-22 03:42:51.192 +03:00 [INF] Now listening on: http://localhost:5291
+2026-03-22 03:42:51.268 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-03-22 03:42:51.268 +03:00 [INF] Hosting environment: Development
+2026-03-22 03:42:51.269 +03:00 [INF] Content root path: C:\Users\User\source\repos\AtlasWeb\AtlasWeb
+2026-03-22 03:42:51.922 +03:00 [INF] Request starting HTTP/2 GET https://localhost:7028/_framework/aspnetcore-browser-refresh.js - null null
+2026-03-22 03:42:51.922 +03:00 [INF] Request starting HTTP/2 GET https://localhost:7028/_vs/browserLink - null null
+2026-03-22 03:42:51.943 +03:00 [INF] Request finished HTTP/2 GET https://localhost:7028/_framework/aspnetcore-browser-refresh.js - 200 16501 application/javascript; charset=utf-8 29.5147ms
+2026-03-22 03:42:52.103 +03:00 [INF] Request finished HTTP/2 GET https://localhost:7028/_vs/browserLink - 200 null text/javascript; charset=UTF-8 190.1235ms
+2026-03-22 03:42:52.143 +03:00 [INF] Request starting HTTP/2 GET https://localhost:7028/swagger/v1/swagger.json - null null
+2026-03-22 03:42:52.190 +03:00 [INF] Request finished HTTP/2 GET https://localhost:7028/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 46.879ms
+2026-03-22 03:44:03.012 +03:00 [INF] Executed DbCommand (12ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-03-22 03:44:03.201 +03:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2026-03-22 03:44:03.206 +03:00 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2026-03-22 03:44:03.207 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2026-03-22 03:44:03.207 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-03-22 03:44:03.212 +03:00 [INF] Applying migration '20260322004323_UpdateUserIdToGuid'.
+2026-03-22 03:44:03.228 +03:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Faturalar" DROP CONSTRAINT "FK_Faturalar_Musteriler_MusteriId";
+2026-03-22 03:44:03.228 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Kullanicilar" DROP CONSTRAINT "FK_Kullanicilar_Musteriler_MusteriId";
+2026-03-22 03:44:03.229 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DROP TABLE "AuditLogs";
+2026-03-22 03:44:03.230 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DROP TABLE "KullaniciTokens";
+2026-03-22 03:44:03.230 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DROP INDEX "IX_Kullanicilar_MusteriId";
+2026-03-22 03:44:03.231 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Faturalar" RENAME COLUMN "ToplamTutar" TO "Tutar";
+2026-03-22 03:44:03.232 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER INDEX "IX_Fatura_Tenant_Performance" RENAME TO "IX_Fatura_SaaS_Performance";
+2026-03-22 03:44:03.244 +03:00 [INF] Executed DbCommand (12ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Kullanicilar" ALTER COLUMN "Soyad" TYPE character varying(100);
+2026-03-22 03:44:03.251 +03:00 [INF] Executed DbCommand (7ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Kullanicilar" SET "MusteriId" = '00000000-0000-0000-0000-000000000000' WHERE "MusteriId" IS NULL;
+ALTER TABLE "Kullanicilar" ALTER COLUMN "MusteriId" SET NOT NULL;
+ALTER TABLE "Kullanicilar" ALTER COLUMN "MusteriId" SET DEFAULT '00000000-0000-0000-0000-000000000000';
+2026-03-22 03:44:03.255 +03:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Kullanicilar" ALTER COLUMN "Ad" TYPE character varying(100);
+2026-03-22 03:44:03.256 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Kullanicilar" ADD "GuncellemeTarihi" timestamp with time zone;
+2026-03-22 03:44:03.256 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Kullanicilar" ADD "GuncelleyenKullanici" text;
+2026-03-22 03:44:03.256 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Kullanicilar" ADD "OlusturanKullanici" text;
+2026-03-22 03:44:03.256 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Kullanicilar" ADD "SilenKullanici" text;
+2026-03-22 03:44:03.257 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Kullanicilar" ADD "SilinmeTarihi" timestamp with time zone;
+2026-03-22 03:44:03.257 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Kullanicilar" ADD "Source" integer NOT NULL DEFAULT 0;
+2026-03-22 03:44:03.264 +03:00 [ERR] Failed executing DbCommand (7ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Faturalar" ALTER COLUMN "Id" TYPE integer;
+ALTER TABLE "Faturalar" ALTER COLUMN "Id" DROP DEFAULT;
+ALTER TABLE "Faturalar" ALTER COLUMN "Id" ADD GENERATED BY DEFAULT AS IDENTITY;
+2026-03-22 03:53:05.709 +03:00 [INF] Now listening on: https://localhost:7028
+2026-03-22 03:53:05.739 +03:00 [INF] Now listening on: http://localhost:5291
+2026-03-22 03:53:05.817 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-03-22 03:53:05.818 +03:00 [INF] Hosting environment: Development
+2026-03-22 03:53:05.818 +03:00 [INF] Content root path: C:\Users\User\source\repos\AtlasWeb\AtlasWeb
+2026-03-22 03:53:07.705 +03:00 [INF] Request starting HTTP/2 GET https://localhost:7028/_vs/browserLink - null null
+2026-03-22 03:53:07.705 +03:00 [INF] Request starting HTTP/2 GET https://localhost:7028/_framework/aspnetcore-browser-refresh.js - null null
+2026-03-22 03:53:07.753 +03:00 [INF] Request finished HTTP/2 GET https://localhost:7028/_framework/aspnetcore-browser-refresh.js - 200 16501 application/javascript; charset=utf-8 53.9571ms
+2026-03-22 03:53:07.798 +03:00 [INF] Request finished HTTP/2 GET https://localhost:7028/_vs/browserLink - 200 null text/javascript; charset=UTF-8 99.6272ms
+2026-03-22 03:53:07.891 +03:00 [INF] Request starting HTTP/2 GET https://localhost:7028/swagger/v1/swagger.json - null null
+2026-03-22 03:53:07.961 +03:00 [INF] Request finished HTTP/2 GET https://localhost:7028/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 69.4973ms
+2026-03-22 22:45:02.808 +03:00 [INF] Now listening on: https://localhost:7028
+2026-03-22 22:45:02.851 +03:00 [INF] Now listening on: http://localhost:5291
+2026-03-22 22:45:02.944 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-03-22 22:45:02.945 +03:00 [INF] Hosting environment: Development
+2026-03-22 22:45:02.946 +03:00 [INF] Content root path: C:\Users\User\source\repos\AtlasWeb\AtlasWeb
+2026-03-22 22:45:03.662 +03:00 [INF] Request starting HTTP/2 GET https://localhost:7028/_vs/browserLink - null null
+2026-03-22 22:45:03.662 +03:00 [INF] Request starting HTTP/2 GET https://localhost:7028/_framework/aspnetcore-browser-refresh.js - null null
+2026-03-22 22:45:03.700 +03:00 [INF] Request finished HTTP/2 GET https://localhost:7028/_framework/aspnetcore-browser-refresh.js - 200 16501 application/javascript; charset=utf-8 48.1504ms
+2026-03-22 22:45:03.794 +03:00 [INF] Request finished HTTP/2 GET https://localhost:7028/_vs/browserLink - 200 null text/javascript; charset=UTF-8 142.6075ms
+2026-03-22 22:45:03.831 +03:00 [INF] Request starting HTTP/2 GET https://localhost:7028/swagger/v1/swagger.json - null null
+2026-03-22 22:45:03.899 +03:00 [INF] Request finished HTTP/2 GET https://localhost:7028/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 68.1613ms
