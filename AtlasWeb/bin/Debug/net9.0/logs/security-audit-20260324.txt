@@ -1,0 +1,21 @@
+2026-03-24 22:10:57.496 +03:00 [INF] User profile is available. Using 'C:\Users\User\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-03-24 22:10:57.773 +03:00 [INF] Now listening on: http://localhost:5000
+2026-03-24 22:10:57.776 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-03-24 22:10:57.778 +03:00 [INF] Hosting environment: Production
+2026-03-24 22:10:57.779 +03:00 [INF] Content root path: C:\Users\User\Desktop\AtlasWeb\AtlasWeb\bin\Debug\net9.0
+2026-03-24 22:11:05.551 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/ - null null
+2026-03-24 22:11:05.605 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/ - 301 0 null 56.441ms
+2026-03-24 22:11:05.620 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/index.html - null null
+2026-03-24 22:11:05.707 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/index.html - 200 null text/html;charset=utf-8 87.5443ms
+2026-03-24 22:11:05.725 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/swagger-ui.css - null null
+2026-03-24 22:11:05.726 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/index.css - null null
+2026-03-24 22:11:05.727 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/swagger-ui-bundle.js - null null
+2026-03-24 22:11:05.728 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/swagger-ui-standalone-preset.js - null null
+2026-03-24 22:11:05.728 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/index.js - null null
+2026-03-24 22:11:05.742 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/index.js - 200 null application/javascript;charset=utf-8 13.5435ms
+2026-03-24 22:11:05.757 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/index.css - 200 152 text/css 30.9937ms
+2026-03-24 22:11:05.757 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/swagger-ui.css - 200 23647 text/css 31.5356ms
+2026-03-24 22:11:05.763 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/swagger-ui-standalone-preset.js - 200 77352 text/javascript 35.1165ms
+2026-03-24 22:11:05.763 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/swagger-ui-bundle.js - 200 424767 text/javascript 36.6672ms
+2026-03-24 22:11:05.908 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/swagger/v1/swagger.json - null null
+2026-03-24 22:11:06.027 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 118.3279ms

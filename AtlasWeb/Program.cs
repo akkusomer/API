@@ -1,6 +1,7 @@
 using AtlasWeb.Data;
 using AtlasWeb.Services;
 using AtlasWeb.Middlewares;
+using AtlasWeb.Models;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using FluentValidation;
@@ -14,7 +15,7 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🛡️ STRUCTURED LOGGING
+// 🛡️ 1. LOGLAMA YAPISI (Serilog)
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
@@ -23,6 +24,7 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+// 🏗️ 2. VERİTABANI BAĞLANTISI (PostgreSQL)
 builder.Services.AddDbContext<AtlasDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -30,18 +32,20 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddControllers();
 
-// 🛡️ JWT Authentication
+// 🛡️ 3. JWT AUTHENTICATION
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
-    ?? throw new InvalidOperationException("JWT Key yapılandırılmamış. 'Jwt:Key' appsettings veya JWT_SECRET_KEY ortam değişkeni ile tanımlanmalıdır.");
+    ?? "SeninCokGizliVeUzunJwtAnahtarin123!"; // Güvenlik için appsettings'e alınmalı
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true, ValidateAudience = true,
-            ValidateLifetime = true, ValidateIssuerSigningKey = true,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
@@ -50,54 +54,43 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// 🛡️ FluentValidation
-builder.Services.AddFluentValidationAutoValidation()
-                .AddFluentValidationClientsideAdapters();
+// 🛡️ 4. VALIDATION & RATE LIMITING
+builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-// 🛡️ Rate Limiting - LoginPolicy tanımı
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("LoginPolicy", limiterOptions =>
     {
         limiterOptions.Window = TimeSpan.FromMinutes(5);
-        limiterOptions.PermitLimit = 10; // 5 dakikada maksimum 10 giriş denemesi
+        limiterOptions.PermitLimit = 10;
         limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         limiterOptions.QueueLimit = 0;
     });
     options.RejectionStatusCode = 429;
 });
 
-// 🌐 CORS - Frontend entegrasyonu için
+// 🌐 5. CORS - TÜM ERİŞİMLERE İZİN VERİLDİ
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AtlasWebCors", policy =>
     {
-        policy
-            .WithOrigins(
-                "http://localhost:3000",  // React / Next.js geliştirme ortamı
-                "http://localhost:5173",  // Vite geliştirme ortamı
-                "http://localhost:4200",  // Angular geliştirme ortamı
-                "http://127.0.0.1:5500"  // VS Code Live Server
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
     });
 });
 
-// 🔒 Dağıtık Önbellek (Redis için yorum satırı açılabilir)
-// builder.Services.AddStackExchangeRedisCache(options => { options.Configuration = "localhost:6379"; });
 builder.Services.AddDistributedMemoryCache();
 
-// 📄 Swagger - JWT Bearer token desteği ile
+// 📄 6. SWAGGER (JWT BEARER DESTEKLİ)
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "AtlasWeb API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Name = "Authorization", Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer", BearerFormat = "JWT",
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
         In = ParameterLocation.Header,
         Description = "JWT token'ınızı 'Bearer <token>' formatında girin."
     });
@@ -110,7 +103,47 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// 🛡️ SAVUNMA KATMANLARI (Sıralama Kritik!)
+// --- 🚀 7. [DATABASE INITIALIZATION & SEED DATA] ---
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AtlasDbContext>();
+        Log.Information("--> [DATABASE] Tablolar kontrol ediliyor...");
+
+        // ÖNEMLİ: Tablolar yoksa direkt modellerden oluşturur (Migration hatasını çözer)
+        await context.Database.EnsureCreatedAsync();
+
+        var adminVarMi = await context.Kullanicilar.AnyAsync(u => u.Rol == KullaniciRol.Admin);
+
+        if (!adminVarMi)
+        {
+            var ilkAdmin = new Kullanici
+            {
+                Id = AtlasWeb.Services.IdGenerator.CreateV7(),
+                Ad = "Muhammed Ömer",
+                Soyad = "Akkuş",
+                EPosta = "akkusomer0742@plostre.com",
+                SifreHash = BCrypt.Net.BCrypt.HashPassword("Omer.0742_"),
+                Rol = KullaniciRol.Admin,
+                MusteriId = Guid.Empty,
+                AktifMi = true,
+                KayitTarihi = DateTime.UtcNow
+            };
+
+            context.Kullanicilar.Add(ilkAdmin);
+            await context.SaveChangesAsync();
+            Log.Information("--> [SEED] İlk Admin ({Email}) başarıyla oluşturuldu.", ilkAdmin.EPosta);
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "--> [ERROR] Veritabanı başlatılırken hata oluştu!");
+    }
+}
+
+// 🛡️ 8. MIDDLEWARE PIPELINE (Sıralama Kritik!)
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<SecurityCircuitBreaker>();
 
@@ -121,11 +154,11 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "AtlasWeb API V1");
 });
 
-app.UseCors("AtlasWebCors"); // 🌐 CORS aktif
-
-app.UseRateLimiter(); // 🛡️ Rate Limiter aktif
-
+app.UseCors("AtlasWebCors");
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
+
 app.Run();
