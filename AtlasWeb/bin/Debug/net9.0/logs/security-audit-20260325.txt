@@ -269,3 +269,4 @@ Npgsql.NpgsqlException (0x80004005): No password has been provided but the backe
 2026-03-25 19:05:08.139 +03:00 [INF] Application started. Press Ctrl+C to shut down.
 2026-03-25 19:05:08.141 +03:00 [INF] Hosting environment: Production
 2026-03-25 19:05:08.141 +03:00 [INF] Content root path: C:\Users\User\Desktop\AtlasWeb\AtlasWeb\bin\Debug\net9.0
+2026-03-25 19:08:15.455 +03:00 [INF] Application is shutting down...
