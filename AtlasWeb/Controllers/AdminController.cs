@@ -1,3 +1,4 @@
+using System.IO;
 using AtlasWeb.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,9 +22,8 @@ namespace AtlasWeb.Controllers
         public async Task<IActionResult> GetUserActivities()
         {
             var logs = await _context.AuditLogs
-                .Where(x => x.Action == "Login" || x.Action == "Logout")
                 .OrderByDescending(x => x.Timestamp)
-                .Take(50)
+                .Take(100)
                 .Select(x => new 
                 {
                     x.Id,
@@ -45,6 +45,31 @@ namespace AtlasWeb.Controllers
                 .ToListAsync();
 
             return Ok(hatalar);
+        }
+
+        [HttpGet("dosya-loglari")]
+        public async Task<IActionResult> GetFileLogs()
+        {
+            try
+            {
+                var logPath = Path.Combine(AppContext.BaseDirectory, "logs");
+                if (!Directory.Exists(logPath)) return NotFound("Log dizini bulunamadı.");
+
+                var file = Directory.GetFiles(logPath)
+                    .OrderByDescending(f => f)
+                    .FirstOrDefault();
+
+                if (file == null) return NotFound("Log dosyası bulunamadı.");
+
+                var lines = await System.IO.File.ReadAllLinesAsync(file);
+                var lastLines = lines.Skip(Math.Max(0, lines.Length - 100)).ToList();
+
+                return Ok(lastLines);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Loglar okunurken hata: " + ex.Message);
+            }
         }
     }
 }
