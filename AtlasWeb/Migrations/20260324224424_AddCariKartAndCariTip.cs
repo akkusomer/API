@@ -6,296 +6,72 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace AtlasWeb.Migrations
 {
-    /// <inheritdoc />
     public partial class AddCariKartAndCariTip : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("ALTER TABLE \"Musteriler\" ALTER COLUMN \"PaketTipi\" TYPE integer USING \"PaketTipi\"::integer;");
-            migrationBuilder.AlterColumn<int>(
-                name: "PaketTipi",
-                table: "Musteriler",
-                type: "integer",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text");
+            // --- 1. MUSTERILER TABLOSU GÜNCELLEMELERÝ ---
+            migrationBuilder.Sql(@"
+                DO $$ BEGIN 
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Musteriler' AND column_name = 'PaketTipi' AND data_type = 'text') THEN
+                        ALTER TABLE ""Musteriler"" ALTER COLUMN ""PaketTipi"" TYPE integer USING ""PaketTipi""::integer;
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Musteriler' AND column_name = 'KimlikTuru' AND data_type = 'text') THEN
+                        ALTER TABLE ""Musteriler"" ALTER COLUMN ""KimlikTuru"" TYPE integer USING ""KimlikTuru""::integer;
+                    END IF;
+                END $$;");
 
-            migrationBuilder.Sql("ALTER TABLE \"Musteriler\" ALTER COLUMN \"KimlikTuru\" TYPE integer USING \"KimlikTuru\"::integer;");
-            migrationBuilder.AlterColumn<int>(
-                name: "KimlikTuru",
-                table: "Musteriler",
-                type: "integer",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text");
+            // --- 2. KULLANICILAR TABLOSU GÜNCELLEMELERÝ ---
+            migrationBuilder.Sql(@"
+                DO $$ BEGIN 
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Kullanicilar' AND column_name = 'Soyad' AND character_maximum_length IS NOT NULL) THEN
+                        ALTER TABLE ""Kullanicilar"" ALTER COLUMN ""Soyad"" TYPE text;
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Kullanicilar' AND column_name = 'Ad' AND character_maximum_length IS NOT NULL) THEN
+                        ALTER TABLE ""Kullanicilar"" ALTER COLUMN ""Ad"" TYPE text;
+                    END IF;
+                END $$;");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "Soyad",
-                table: "Kullanicilar",
-                type: "text",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "character varying(100)",
-                oldMaxLength: 100);
+            // --- 3. FATURALAR ID DÖNÜÞÜMÜ (HATA VEREN KRÝTÝK KISIM) ---
+            // EF Core'un kendi AlterColumn metodunu kullanmýyoruz çünkü hatalý DROP IDENTITY üretiyor.
+            migrationBuilder.Sql(@"
+                DO $$ BEGIN 
+                    -- Identity'i kaldýr (Sadece varsa)
+                    IF EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name = 'Faturalar' AND column_name = 'Id' AND is_identity = 'YES') THEN
+                        ALTER TABLE ""Faturalar"" ALTER COLUMN ""Id"" DROP IDENTITY;
+                    END IF;
+                    
+                    -- Tipi UUID'ye çevir (Sadece hala integer ise)
+                    IF (SELECT data_type FROM information_schema.columns WHERE table_name = 'Faturalar' AND column_name = 'Id') = 'integer' THEN
+                        ALTER TABLE ""Faturalar"" ALTER COLUMN ""Id"" TYPE uuid USING (md5(""Id""::text)::uuid);
+                    END IF;
+                END $$;");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "Ad",
-                table: "Kullanicilar",
-                type: "text",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "character varying(100)",
-                oldMaxLength: 100);
+            // --- 4. YENÝ TABLOLARIN OLUÞTURULMASI (GÜVENLÝ) ---
+            migrationBuilder.Sql("CREATE TABLE IF NOT EXISTS \"AuditLogs\" ( \"Id\" uuid NOT NULL, \"EntityName\" text NOT NULL, \"EntityId\" text NOT NULL, \"Action\" text NOT NULL, \"UserId\" text, \"Timestamp\" timestamp with time zone NOT NULL, CONSTRAINT \"PK_AuditLogs\" PRIMARY KEY (\"Id\") );");
 
-            migrationBuilder.Sql("ALTER TABLE \"Faturalar\" ALTER COLUMN \"Id\" DROP DEFAULT;");
-            migrationBuilder.Sql("ALTER TABLE \"Faturalar\" ALTER COLUMN \"Id\" TYPE uuid USING (md5(\"Id\"::text)::uuid);");
-            migrationBuilder.AlterColumn<Guid>(
-                name: "Id",
-                table: "Faturalar",
-                type: "uuid",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "integer")
-                .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+            migrationBuilder.Sql("CREATE TABLE IF NOT EXISTS \"Birimler\" ( \"Id\" uuid NOT NULL, \"Ad\" text NOT NULL, \"Sembol\" text NOT NULL, \"AktifMi\" boolean NOT NULL, \"SilinmeTarihi\" timestamp with time zone, \"SilenKullanici\" text, \"KayitTarihi\" timestamp with time zone NOT NULL, \"OlusturanKullanici\" text, \"GuncellemeTarihi\" timestamp with time zone, \"GuncelleyenKullanici\" text, \"Source\" integer NOT NULL, CONSTRAINT \"PK_Birimler\" PRIMARY KEY (\"Id\") );");
 
-            migrationBuilder.CreateTable(
-                name: "AuditLogs",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    EntityName = table.Column<string>(type: "text", nullable: false),
-                    EntityId = table.Column<string>(type: "text", nullable: false),
-                    Action = table.Column<string>(type: "text", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: true),
-                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AuditLogs", x => x.Id);
-                });
+            migrationBuilder.Sql("CREATE TABLE IF NOT EXISTS \"CariTipler\" ( \"Id\" uuid NOT NULL, \"Adi\" character varying(50) NOT NULL, \"Aciklama\" character varying(200), \"AktifMi\" boolean NOT NULL, \"SilinmeTarihi\" timestamp with time zone, \"SilenKullanici\" text, \"KayitTarihi\" timestamp with time zone NOT NULL, \"OlusturanKullanici\" text, \"GuncellemeTarihi\" timestamp with time zone, \"GuncelleyenKullanici\" text, \"Source\" integer NOT NULL, CONSTRAINT \"PK_CariTipler\" PRIMARY KEY (\"Id\") );");
 
-            migrationBuilder.CreateTable(
-                name: "Birimler",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Ad = table.Column<string>(type: "text", nullable: false),
-                    Sembol = table.Column<string>(type: "text", nullable: false),
-                    AktifMi = table.Column<bool>(type: "boolean", nullable: false),
-                    SilinmeTarihi = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    SilenKullanici = table.Column<string>(type: "text", nullable: true),
-                    KayitTarihi = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OlusturanKullanici = table.Column<string>(type: "text", nullable: true),
-                    GuncellemeTarihi = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    GuncelleyenKullanici = table.Column<string>(type: "text", nullable: true),
-                    Source = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Birimler", x => x.Id);
-                });
+            migrationBuilder.Sql("CREATE TABLE IF NOT EXISTS \"ErrorLogs\" ( \"Id\" integer GENERATED BY DEFAULT AS IDENTITY, \"HataMesaji\" text NOT NULL, \"HataDetayi\" text, \"IstekYolu\" text, \"KullaniciId\" text, \"Tarih\" timestamp with time zone NOT NULL, CONSTRAINT \"PK_ErrorLogs\" PRIMARY KEY (\"Id\") );");
 
-            migrationBuilder.CreateTable(
-                name: "CariTipler",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Adi = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Aciklama = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
-                    AktifMi = table.Column<bool>(type: "boolean", nullable: false),
-                    SilinmeTarihi = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    SilenKullanici = table.Column<string>(type: "text", nullable: true),
-                    KayitTarihi = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OlusturanKullanici = table.Column<string>(type: "text", nullable: true),
-                    GuncellemeTarihi = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    GuncelleyenKullanici = table.Column<string>(type: "text", nullable: true),
-                    Source = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CariTipler", x => x.Id);
-                });
+            migrationBuilder.Sql("CREATE TABLE IF NOT EXISTS \"Stoklar\" ( \"Id\" uuid NOT NULL, \"StokKodu\" text NOT NULL, \"StokAdi\" text NOT NULL, \"YedekAdi\" text, \"BirimId\" uuid NOT NULL, \"MusteriId\" uuid NOT NULL, \"AktifMi\" boolean NOT NULL, \"KayitTarihi\" timestamp with time zone NOT NULL, \"OlusturanKullanici\" text, \"GuncellemeTarihi\" timestamp with time zone, \"GuncelleyenKullanici\" text, \"SilinmeTarihi\" timestamp with time zone, \"SilenKullanici\" text, \"Source\" integer NOT NULL, CONSTRAINT \"PK_Stoklar\" PRIMARY KEY (\"Id\"), CONSTRAINT \"FK_Stoklar_Birimler_BirimId\" FOREIGN KEY (\"BirimId\") REFERENCES \"Birimler\" (\"Id\") ON DELETE CASCADE );");
 
-            migrationBuilder.CreateTable(
-                name: "ErrorLogs",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    HataMesaji = table.Column<string>(type: "text", nullable: false),
-                    HataDetayi = table.Column<string>(type: "text", nullable: true),
-                    IstekYolu = table.Column<string>(type: "text", nullable: true),
-                    KullaniciId = table.Column<string>(type: "text", nullable: true),
-                    Tarih = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ErrorLogs", x => x.Id);
-                });
+            migrationBuilder.Sql("CREATE TABLE IF NOT EXISTS \"CariKartlar\" ( \"Id\" uuid NOT NULL, \"CariTipId\" uuid NOT NULL, \"Unvan\" character varying(150), \"AdiSoyadi\" character varying(100), \"FaturaTipi\" integer NOT NULL, \"GrupKodu\" character varying(20), \"OzelKodu\" character varying(20), \"Telefon\" character varying(20), \"Telefon2\" character varying(20), \"Gsm\" character varying(20), \"Adres\" character varying(250), \"VergiDairesi\" character varying(50), \"VTCK_No\" character varying(11), \"MusteriId\" uuid NOT NULL, \"AktifMi\" boolean NOT NULL, \"KayitTarihi\" timestamp with time zone NOT NULL, \"OlusturanKullanici\" text, \"GuncellemeTarihi\" timestamp with time zone, \"GuncelleyenKullanici\" text, \"SilinmeTarihi\" timestamp with time zone, \"SilenKullanici\" text, \"Source\" integer NOT NULL, CONSTRAINT \"PK_CariKartlar\" PRIMARY KEY (\"Id\"), CONSTRAINT \"FK_CariKartlar_CariTipler_CariTipId\" FOREIGN KEY (\"CariTipId\") REFERENCES \"CariTipler\" (\"Id\") ON DELETE RESTRICT );");
 
-            migrationBuilder.CreateTable(
-                name: "Stoklar",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    StokKodu = table.Column<string>(type: "text", nullable: false),
-                    StokAdi = table.Column<string>(type: "text", nullable: false),
-                    YedekAdi = table.Column<string>(type: "text", nullable: true),
-                    BirimId = table.Column<Guid>(type: "uuid", nullable: false),
-                    MusteriId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AktifMi = table.Column<bool>(type: "boolean", nullable: false),
-                    KayitTarihi = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OlusturanKullanici = table.Column<string>(type: "text", nullable: true),
-                    GuncellemeTarihi = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    GuncelleyenKullanici = table.Column<string>(type: "text", nullable: true),
-                    SilinmeTarihi = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    SilenKullanici = table.Column<string>(type: "text", nullable: true),
-                    Source = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Stoklar", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Stoklar_Birimler_BirimId",
-                        column: x => x.BirimId,
-                        principalTable: "Birimler",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CariKartlar",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    CariTipId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Unvan = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: true),
-                    AdiSoyadi = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    FaturaTipi = table.Column<int>(type: "integer", nullable: false),
-                    GrupKodu = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    OzelKodu = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    Telefon = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    Telefon2 = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    Gsm = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    Adres = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true),
-                    VergiDairesi = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    VTCK_No = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
-                    MusteriId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AktifMi = table.Column<bool>(type: "boolean", nullable: false),
-                    KayitTarihi = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OlusturanKullanici = table.Column<string>(type: "text", nullable: true),
-                    GuncellemeTarihi = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    GuncelleyenKullanici = table.Column<string>(type: "text", nullable: true),
-                    SilinmeTarihi = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    SilenKullanici = table.Column<string>(type: "text", nullable: true),
-                    Source = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CariKartlar", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CariKartlar_CariTipler_CariTipId",
-                        column: x => x.CariTipId,
-                        principalTable: "CariTipler",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Faturalar_MusteriId_FaturaNo_Unique",
-                table: "Faturalar",
-                columns: new[] { "MusteriId", "FaturaNo" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CariKart_SaaS_Performance",
-                table: "CariKartlar",
-                columns: new[] { "MusteriId", "AktifMi", "KayitTarihi" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CariKartlar_CariTipId",
-                table: "CariKartlar",
-                column: "CariTipId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Stok_SaaS_Performance",
-                table: "Stoklar",
-                columns: new[] { "MusteriId", "AktifMi", "KayitTarihi" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Stoklar_BirimId",
-                table: "Stoklar",
-                column: "BirimId");
+            // --- 5. INDEXLER (GÜVENLÝ) ---
+            migrationBuilder.Sql("CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Faturalar_MusteriId_FaturaNo_Unique\" ON \"Faturalar\" (\"MusteriId\", \"FaturaNo\");");
+            migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IX_CariKart_SaaS_Performance\" ON \"CariKartlar\" (\"MusteriId\", \"AktifMi\", \"KayitTarihi\");");
+            migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IX_CariKartlar_CariTipId\" ON \"CariKartlar\" (\"CariTipId\");");
+            migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IX_Stok_SaaS_Performance\" ON \"Stoklar\" (\"MusteriId\", \"AktifMi\", \"KayitTarihi\");");
+            migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IX_Stoklar_BirimId\" ON \"Stoklar\" (\"BirimId\");");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "AuditLogs");
-
-            migrationBuilder.DropTable(
-                name: "CariKartlar");
-
-            migrationBuilder.DropTable(
-                name: "ErrorLogs");
-
-            migrationBuilder.DropTable(
-                name: "Stoklar");
-
-            migrationBuilder.DropTable(
-                name: "CariTipler");
-
-            migrationBuilder.DropTable(
-                name: "Birimler");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Faturalar_MusteriId_FaturaNo_Unique",
-                table: "Faturalar");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "PaketTipi",
-                table: "Musteriler",
-                type: "text",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "integer");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "KimlikTuru",
-                table: "Musteriler",
-                type: "text",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "integer");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Soyad",
-                table: "Kullanicilar",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Ad",
-                table: "Kullanicilar",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text");
-
-            migrationBuilder.AlterColumn<int>(
-                name: "Id",
-                table: "Faturalar",
-                type: "integer",
-                nullable: false,
-                oldClrType: typeof(Guid),
-                oldType: "uuid")
-                .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+            // Down metodu isteðe baðlýdýr, þu anlýk boþ býrakabilirsin.
         }
     }
 }
