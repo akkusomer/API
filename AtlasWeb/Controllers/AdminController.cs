@@ -1,5 +1,8 @@
 using System.IO;
 using AtlasWeb.Data;
+using AtlasWeb.Models;
+using AtlasWeb.DTOs;
+using AtlasWeb.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -70,6 +73,62 @@ namespace AtlasWeb.Controllers
             {
                 return BadRequest("Loglar okunurken hata: " + ex.Message);
             }
+        }
+
+        [HttpGet("musteri/{id}/kullanicilar")]
+        public async Task<IActionResult> GetMusteriUsers(Guid id)
+        {
+            var users = await _context.Kullanicilar
+                .IgnoreQueryFilters()
+                .Where(u => u.MusteriId == id)
+                .Select(u => new 
+                {
+                    u.Id,
+                    u.Ad,
+                    u.Soyad,
+                    u.EPosta,
+                    u.Rol,
+                    u.AktifMi
+                })
+                .ToListAsync();
+
+            return Ok(users);
+        }
+
+        [HttpPost("musteri/{id}/kullanici")]
+        public async Task<IActionResult> AddUserToMusteri(Guid id, [FromBody] RegisterUserDto dto)
+        {
+            var musteriVarMi = await _context.Musteriler.AnyAsync(m => m.Id == id);
+            if (!musteriVarMi) return BadRequest("Müşteri bulunamadı.");
+
+            var yeni = new Kullanici
+            {
+                Id = IdGenerator.CreateV7(),
+                Ad = dto.Ad,
+                Soyad = dto.Soyad,
+                EPosta = dto.EPosta,
+                SifreHash = BCrypt.Net.BCrypt.HashPassword(dto.Sifre),
+                Rol = KullaniciRol.User,
+                MusteriId = id,
+                AktifMi = true
+            };
+
+            _context.Kullanicilar.Add(yeni);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mesaj = "Kullanıcı başarıyla eklendi." });
+        }
+
+        [HttpDelete("kullanici/{id}")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var user = await _context.Kullanicilar.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return NotFound();
+
+            user.AktifMi = false;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mesaj = "Kullanıcı pasife alındı." });
         }
     }
 }
