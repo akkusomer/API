@@ -96,16 +96,17 @@ namespace AtlasWeb.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SoftDelete(Guid id)
         {
             var musteri = await _context.Musteriler.FindAsync(id);
             if (musteri == null) return NotFound(new { hata = "Belirtilen müşteri bulunamadı." });
 
-            // SaveChanges: BaseEntity olmayan ISoftDelete kayıtları için pasifleştirme (Musteri).
-            _context.Musteriler.Remove(musteri);
+            // 🛡️ Safe Soft Delete: If there are users, don't hard remove
+            musteri.AktifMi = false;
             await _context.SaveChangesAsync();
 
-            return Ok(new { mesaj = "Müşteri kaydı başarıyla silinmiş (pasife alınmış) olarak işaretlendi." });
+            return Ok(new { mesaj = "Müşteri pasif duruma getirildi." });
         }
 
         [HttpDelete("{id}/hard")]

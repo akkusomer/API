@@ -130,5 +130,46 @@ namespace AtlasWeb.Controllers
 
             return Ok(new { mesaj = "Kullanıcı pasife alındı." });
         }
+
+        [HttpGet("yoneticiler")]
+        public async Task<IActionResult> GetYoneticiler()
+        {
+            var users = await _context.Kullanicilar
+                .IgnoreQueryFilters()
+                .Where(u => u.Rol == KullaniciRol.Admin)
+                .Select(u => new 
+                {
+                    u.Id,
+                    u.Ad,
+                    u.Soyad,
+                    u.EPosta,
+                    u.Rol,
+                    u.AktifMi
+                })
+                .ToListAsync();
+
+            return Ok(users);
+        }
+
+        [HttpPost("yonetici")]
+        public async Task<IActionResult> AddYonetici([FromBody] RegisterUserDto dto)
+        {
+            var yeni = new Kullanici
+            {
+                Id = IdGenerator.CreateV7(),
+                Ad = dto.Ad,
+                Soyad = dto.Soyad,
+                EPosta = dto.EPosta,
+                SifreHash = BCrypt.Net.BCrypt.HashPassword(dto.Sifre),
+                Rol = KullaniciRol.Admin,
+                MusteriId = Guid.Empty, // Sistem adminleri MusteriId'den bağımsız olabilir veya Guid.Empty kullanılabilir
+                AktifMi = true
+            };
+
+            _context.Kullanicilar.Add(yeni);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mesaj = "Sistem yöneticisi başarıyla eklendi." });
+        }
     }
 }
