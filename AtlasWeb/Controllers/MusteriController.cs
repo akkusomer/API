@@ -41,6 +41,12 @@ namespace AtlasWeb.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateMusteri([FromBody] MusteriDto dto)
         {
+            if (await _context.Musteriler.AnyAsync(m => m.MusteriKodu == dto.MusteriKodu))
+                return BadRequest(new { hata = "Bu müşteri kodu zaten kullanımda." });
+
+            if (!string.IsNullOrEmpty(dto.VergiNo) && await _context.Musteriler.AnyAsync(m => m.VergiNo == dto.VergiNo))
+                return BadRequest(new { hata = "Bu VKN/TCKN ile kayıtlı başka bir müşteri var." });
+
             var yeni = new Musteri
             {
                 Id = IdGenerator.CreateV7(),
