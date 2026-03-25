@@ -2,14 +2,19 @@ namespace AtlasWeb.Models
 {
     public class Kullanici : BaseEntity
     {
-        // Id buraya Base'den geliyor, tekrar yazmiyoruz!
+        // Id BaseEntity'den geliyor
         public string Ad { get; set; } = null!;
         public string Soyad { get; set; } = null!;
         public string EPosta { get; set; } = null!;
         public string SifreHash { get; set; } = null!;
-        public string Rol { get; set; } = KullaniciRol.User; // Varsayılan rol: User
-        public string? RefreshToken { get; set; }
-        public DateTime? RefreshTokenExpiryTime { get; set; }
+        public string Rol { get; set; } = KullaniciRol.User;
+
+        // 🛡️ Brute-Force Koruması
+        public int FailedLoginCount { get; set; } = 0;
+        public DateTime? LockoutEnd { get; set; }
+
+        // Navigation: Bu kullanıcıya ait tüm refresh token kayıtları
+        public ICollection<KullaniciToken> Tokens { get; set; } = [];
     }
 
     /// <summary>

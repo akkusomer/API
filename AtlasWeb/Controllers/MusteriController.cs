@@ -20,7 +20,7 @@ namespace AtlasWeb.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMusteriler()
         {
-            // Global Filter sayesinde herkes sadece kendi datasını görür
+            // Admin tüm müşterileri; diğer kullanıcılar yalnızca bağlı oldukları kiracıyı görür (HasQueryFilter).
             var musteriler = await _context.Musteriler.ToListAsync();
             return Ok(musteriler);
         }
@@ -40,7 +40,7 @@ namespace AtlasWeb.Controllers
             var musteri = await _context.Musteriler.FindAsync(id);
             if (musteri == null) return NotFound(new { hata = "Belirtilen müşteri bulunamadı." });
 
-            // Remove tetiklendiğinde AtlasDbContext içindeki interceptor sayesinde Active = false (Soft Delete) yapılır.
+            // SaveChanges: BaseEntity olmayan ISoftDelete kayıtları için pasifleştirme (Musteri).
             _context.Musteriler.Remove(musteri);
             await _context.SaveChangesAsync();
 

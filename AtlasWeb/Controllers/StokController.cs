@@ -70,15 +70,16 @@ namespace AtlasWeb.Controllers
                 System.Data.IsolationLevel.Serializable);
             try
             {
-                var sonStok = await _context.Stoklar
+                var kodlar = await _context.Stoklar
                     .IgnoreQueryFilters()
+                    .AsNoTracking()
                     .Where(s => s.MusteriId == musteriId)
-                    .OrderByDescending(s => s.StokKodu)
-                    .FirstOrDefaultAsync();
+                    .Select(s => s.StokKodu)
+                    .ToListAsync();
 
-                int siradakiNo = 1;
-                if (sonStok != null && int.TryParse(sonStok.StokKodu, out int sonNo))
-                    siradakiNo = sonNo + 1;
+                var siradakiNo = kodlar.Count == 0
+                    ? 1
+                    : kodlar.Select(k => int.TryParse(k, out var n) ? n : 0).Max() + 1;
 
                 var yeniStok = new Stok
                 {

@@ -1,154 +1,182 @@
+using System.Security.Claims;
 using AtlasWeb.Data;
-using AtlasWeb.Services;
-using AtlasWeb.Middlewares;
+using AtlasWeb.DTOs;
 using AtlasWeb.Models;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using AtlasWeb.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using System.Threading.RateLimiting;
-using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// 🛡️ 1. LOGLAMA YAPISI (Serilog)
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.Console()
-    .WriteTo.File("logs/security-audit-.txt", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
-
-builder.Host.UseSerilog();
-
-// 🏗️ 2. VERİTABANI BAĞLANTISI
-builder.Services.AddDbContext<AtlasDbContext>(opt =>
-    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-builder.Services.AddControllers();
-
-// 🛡️ 3. JWT AUTHENTICATION
-var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
-    ?? "SeninCokGizliVeUzunJwtAnahtarin123!"; // Güvenlik için appsettings'e almalısın
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+namespace AtlasWeb.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthController : ControllerBase
     {
-        options.TokenValidationParameters = new TokenValidationParameters
+        private readonly IAuthService _authService;
+        private readonly AtlasDbContext _context;
+
+        public AuthController(IAuthService authService, AtlasDbContext context)
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-        };
-    });
+            _authService = authService;
+            _context     = context;
+        }
 
-builder.Services.AddAuthorization();
-
-// 🛡️ 4. VALIDATION & RATE LIMITING
-builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
-
-builder.Services.AddRateLimiter(options =>
-{
-    options.AddFixedWindowLimiter("LoginPolicy", limiterOptions =>
-    {
-        limiterOptions.Window = TimeSpan.FromMinutes(1);
-        limiterOptions.PermitLimit = 5;
-        limiterOptions.QueueLimit = 0;
-    });
-    options.RejectionStatusCode = 429;
-});
-
-// 🌐 5. CORS AYARLARI
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AtlasWebCors", policy =>
-    {
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-    });
-});
-
-builder.Services.AddDistributedMemoryCache();
-
-// 📄 6. SWAGGER AYARLARI
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "AtlasWeb API", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "JWT token'ınızı 'Bearer <token>' formatında girin."
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {{
-        new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }},
-        Array.Empty<string>()
-    }});
-});
-
-var app = builder.Build();
-
-// --- 🚀 7. [SEED DATA - İLK ADMİN OLUŞTURMA] ---
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<AtlasDbContext>();
-
-    // Veritabanının hazır olduğundan (Migration) emin ol
-    await context.Database.MigrateAsync();
-
-    var adminVarMi = await context.Kullanicilar.AnyAsync(u => u.Rol == KullaniciRol.Admin);
-
-    if (!adminVarMi)
-    {
-        var ilkAdmin = new Kullanici
+        // ── LOGIN ─────────────────────────────────────────────────────────────────
+        /// <summary>
+        /// Kullanıcı girişi. 5 başarısız denemeden sonra hesap 15 dakika kilitlenir.
+        /// Rate limit: 5 istek / dakika / IP.
+        /// </summary>
+        [AllowAnonymous]
+        [EnableRateLimiting("LoginPolicy")]
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            Id = AtlasWeb.Services.IdGenerator.CreateV7(),
-            Ad = "Muhammed Ömer",
-            Soyad = "Akkuş",
-            EPosta = "akkusomer0742@gmail.com", // Gmail adresini kullandım
-            SifreHash = BCrypt.Net.BCrypt.HashPassword("Omer.0742_"),
-            Rol = KullaniciRol.Admin,
-            MusteriId = Guid.Empty,
-            AktifMi = true,
-            KayitTarihi = DateTime.UtcNow
-        };
+            var ip         = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            var deviceInfo = Request.Headers.UserAgent.ToString();
 
-        context.Kullanicilar.Add(ilkAdmin);
-        await context.SaveChangesAsync();
-        Log.Information("--> [SEED] Frankfurt Sunucusu: İlk Admin ({Email}) başarıyla oluşturuldu.", ilkAdmin.EPosta);
+            var result = await _authService.LoginAsync(dto, ip, deviceInfo);
+
+            switch (result.Status)
+            {
+                case AuthStatus.Success:
+                    // 1. Header olarak dönme (Next.js proxy için)
+                    Response.Headers.Append("Authorization", $"Bearer {result.AccessToken}");
+
+                    // 2. HttpOnly Cookie olarak dönme (Güvenli oturum yönetimi için)
+                    var cookieOptions = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true, // HTTPS ortamında çalışmalı
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.UtcNow.AddDays(7)
+                    };
+                    Response.Cookies.Append("refreshToken", result.RefreshToken!, cookieOptions);
+
+                    // 3. Body içinde dönme (Mevcut yapı ve fallback için)
+                    return Ok(new
+                    {
+                        mesaj        = "Giriş başarılı.",
+                        accessToken  = result.AccessToken,
+                        refreshToken = result.RefreshToken
+                    });
+
+                case AuthStatus.Locked:
+                    return StatusCode(423, new
+                    {
+                        hata       = "Hesabınız çok fazla başarısız giriş denemesi nedeniyle geçici olarak kilitlendi.",
+                        kilitBitis = result.LockoutEnd?.ToString("o")   // ISO-8601 for frontend countdown
+                    });
+
+                case AuthStatus.Invalid:
+                    return Unauthorized(new
+                    {
+                        hata = "E-posta veya şifre hatalı."
+                    });
+
+                default:
+                    return StatusCode(500, new { hata = "Beklenmeyen bir hata oluştu." });
+            }
+        }
+
+        // ── REFRESH TOKEN ─────────────────────────────────────────────────────────
+        /// <summary>
+        /// Yeni bir access + refresh token çifti üretir. Eski refresh token geçersiz kılınır (rotation).
+        /// </summary>
+        [AllowAnonymous]
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] TokenDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.RefreshToken))
+                return BadRequest(new { hata = "Refresh token gerekli." });
+
+            var ip     = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            var result = await _authService.RefreshAsync(dto.RefreshToken, ip);
+
+            switch (result.Status)
+            {
+                case AuthStatus.Success:
+                    Response.Headers.Append("Authorization", $"Bearer {result.AccessToken}");
+
+                    var cookieOptions = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.UtcNow.AddDays(7)
+                    };
+                    Response.Cookies.Append("refreshToken", result.RefreshToken!, cookieOptions);
+
+                    return Ok(new
+                    {
+                        mesaj        = "Token yenilendi.",
+                        accessToken  = result.AccessToken,
+                        refreshToken = result.RefreshToken
+                    });
+
+                case AuthStatus.Locked:
+                    return StatusCode(423, new
+                    {
+                        hata       = "Hesabınız kilitlenmiş.",
+                        kilitBitis = result.LockoutEnd?.ToString("o")
+                    });
+
+                default:
+                    return Unauthorized(new { hata = "Geçersiz veya süresi dolmuş oturum. Lütfen yeniden giriş yapın." });
+            }
+        }
+
+        // ── LOGOUT ────────────────────────────────────────────────────────────────
+        /// <summary>
+        /// Tüm cihazlardaki refresh tokenları iptal eder.
+        /// </summary>
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (idClaim is null || !Guid.TryParse(idClaim, out var userId))
+                return Unauthorized();
+
+            await _authService.LogoutAsync(userId);
+
+            // Cookie'leri temizle
+            Response.Cookies.Delete("refreshToken");
+
+            return Ok(new { mesaj = "Tüm oturumlar başarıyla kapatıldı." });
+        }
+
+        // ── REGISTER ─────────────────────────────────────────────────────────────
+        // TODO: Move to a dedicated UserService when user management grows.
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
+        {
+            if (await _context.Kullanicilar
+                    .IgnoreQueryFilters()
+                    .AnyAsync(u => u.EPosta == dto.EPosta))
+                return BadRequest(new { hata = "Bu e-posta zaten kayıtlı." });
+
+            var musteriVarMi = await _context.Musteriler.AnyAsync(m => m.Id == dto.MusteriId);
+            if (!musteriVarMi)
+                return BadRequest(new { hata = "Geçersiz müşteri (şirket) bilgisi." });
+
+            var yeni = new Kullanici
+            {
+                Ad        = dto.Ad,
+                Soyad     = dto.Soyad,
+                EPosta    = dto.EPosta,
+                SifreHash = BCrypt.Net.BCrypt.HashPassword(dto.Sifre),
+                Rol       = KullaniciRol.User,
+                MusteriId = dto.MusteriId,
+                AktifMi   = true
+            };
+
+            _context.Kullanicilar.Add(yeni);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mesaj = "Kayıt tamamlandı." });
+        }
     }
 }
-
-// 🛡️ 8. MIDDLEWARE PIPELINE (Sıralama Önemli)
-app.UseMiddleware<ExceptionMiddleware>();
-app.UseMiddleware<SecurityCircuitBreaker>();
-
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.RoutePrefix = string.Empty;
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AtlasWeb API V1");
-});
-
-app.UseCors("AtlasWebCors");
-app.UseRateLimiter();
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();

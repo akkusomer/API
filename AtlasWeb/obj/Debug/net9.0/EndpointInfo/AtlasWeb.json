@@ -1,34 +1,27 @@
 {
   "openapi": "3.0.4",
   "info": {
-    "title": "AtlasWeb",
-    "version": "1.0"
+    "title": "AtlasWeb API",
+    "version": "v1"
   },
   "paths": {
-    "/api/Auth/register": {
-      "post": {
+    "/api/Admin/aktiviteler": {
+      "get": {
         "tags": [
-          "Auth"
+          "Admin"
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
-              }
-            }
+        "responses": {
+          "200": {
+            "description": "OK"
           }
-        },
+        }
+      }
+    },
+    "/api/Admin/sistem-hatalari": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -56,6 +49,37 @@
             "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUserDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUserDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUserDto"
               }
             }
           }
@@ -110,6 +134,347 @@
         }
       }
     },
+    "/api/Birim": {
+      "get": {
+        "tags": [
+          "Birim"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Birim"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BirimDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BirimDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BirimDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Birim/{id}": {
+      "delete": {
+        "tags": [
+          "Birim"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/CariKart": {
+      "get": {
+        "tags": [
+          "CariKart"
+        ],
+        "parameters": [
+          {
+            "name": "sayfa",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "sayfaBoyutu",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "arama",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CariKart"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CariKartDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CariKartDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CariKartDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/CariKart/{id}": {
+      "get": {
+        "tags": [
+          "CariKart"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CariKart"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CariKartDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CariKartDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CariKartDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CariKart"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/CariTip": {
+      "get": {
+        "tags": [
+          "CariTip"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CariTip"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CariTipDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CariTipDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CariTipDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/CariTip/{id}": {
+      "get": {
+        "tags": [
+          "CariTip"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CariTip"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CariTipDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CariTipDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CariTipDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CariTip"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Musteri": {
       "get": {
         "tags": [
@@ -134,41 +499,109 @@
         }
       }
     },
-    "/WeatherForecast": {
-      "get": {
+    "/api/Musteri/{id}": {
+      "delete": {
         "tags": [
-          "WeatherForecast"
+          "Musteri"
         ],
-        "operationId": "GetWeatherForecast",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
-                  }
-                }
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Musteri/{id}/hard": {
+      "delete": {
+        "tags": [
+          "Musteri"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Stok": {
+      "get": {
+        "tags": [
+          "Stok"
+        ],
+        "parameters": [
+          {
+            "name": "sayfa",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "sayfaBoyutu",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Stok"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StokDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StokDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StokDto"
               }
             }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -176,6 +609,96 @@
   },
   "components": {
     "schemas": {
+      "BirimDto": {
+        "type": "object",
+        "properties": {
+          "ad": {
+            "type": "string",
+            "nullable": true
+          },
+          "sembol": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CariKartDto": {
+        "type": "object",
+        "properties": {
+          "cariTipId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "unvan": {
+            "type": "string",
+            "nullable": true
+          },
+          "adiSoyadi": {
+            "type": "string",
+            "nullable": true
+          },
+          "faturaTipi": {
+            "$ref": "#/components/schemas/FaturaTipiEnum"
+          },
+          "grupKodu": {
+            "type": "string",
+            "nullable": true
+          },
+          "ozelKodu": {
+            "type": "string",
+            "nullable": true
+          },
+          "telefon": {
+            "type": "string",
+            "nullable": true
+          },
+          "telefon2": {
+            "type": "string",
+            "nullable": true
+          },
+          "gsm": {
+            "type": "string",
+            "nullable": true
+          },
+          "adres": {
+            "type": "string",
+            "nullable": true
+          },
+          "vergiDairesi": {
+            "type": "string",
+            "nullable": true
+          },
+          "vtcK_No": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CariTipDto": {
+        "type": "object",
+        "properties": {
+          "adi": {
+            "type": "string",
+            "nullable": true
+          },
+          "aciklama": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FaturaTipiEnum": {
+        "enum": [
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
       "LoginDto": {
         "type": "object",
         "properties": {
@@ -190,9 +713,13 @@
         },
         "additionalProperties": false
       },
-      "RegisterDto": {
+      "RegisterUserDto": {
         "type": "object",
         "properties": {
+          "musteriId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "ad": {
             "type": "string",
             "nullable": true
@@ -212,6 +739,24 @@
         },
         "additionalProperties": false
       },
+      "StokDto": {
+        "type": "object",
+        "properties": {
+          "stokAdi": {
+            "type": "string",
+            "nullable": true
+          },
+          "yedekAdi": {
+            "type": "string",
+            "nullable": true
+          },
+          "birimId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
       "TokenDto": {
         "type": "object",
         "properties": {
@@ -225,30 +770,20 @@
           }
         },
         "additionalProperties": false
-      },
-      "WeatherForecast": {
-        "type": "object",
-        "properties": {
-          "date": {
-            "type": "string",
-            "format": "date"
-          },
-          "temperatureC": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "temperatureF": {
-            "type": "integer",
-            "format": "int32",
-            "readOnly": true
-          },
-          "summary": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "apiKey",
+        "description": "JWT token'ınızı 'Bearer <token>' formatında girin.",
+        "name": "Authorization",
+        "in": "header"
       }
     }
-  }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
 }

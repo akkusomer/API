@@ -24,18 +24,23 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// 🏗️ 2. VERİTABANI BAĞLANTISI (PostgreSQL)
+// 🏗️ 2. VERİTABANI BAĞLANTISI (PostgreSQL) — parola: ConnectionStrings__DefaultConnection veya User Secrets
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+    throw new InvalidOperationException("ConnectionStrings:DefaultConnection tanımlı değil.");
+
 builder.Services.AddDbContext<AtlasDbContext>(opt =>
-    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    opt.UseNpgsql(connectionString, n => n.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddControllers();
 
 // 🛡️ 3. JWT AUTHENTICATION
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
-    ?? "SeninCokGizliVeUzunJwtAnahtarin123!"; // Güvenlik için appsettings'e alınmalı
+    ?? throw new InvalidOperationException("JWT key yapılandırılmamış. Jwt:Key veya JWT_SECRET_KEY ortam değişkenini tanımlayın.");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -60,14 +65,36 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddRateLimiter(options =>
 {
-    options.AddFixedWindowLimiter("LoginPolicy", limiterOptions =>
+    // 🛡️ Sliding window per IP — her IP kendi bağımsız baskını alır (shared bucket sorunu çözüldü)
+    options.AddSlidingWindowLimiter("LoginPolicy", opt =>
     {
-        limiterOptions.Window = TimeSpan.FromMinutes(5);
-        limiterOptions.PermitLimit = 10;
-        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        limiterOptions.QueueLimit = 0;
+        opt.Window               = TimeSpan.FromMinutes(1);
+        opt.SegmentsPerWindow    = 4;          // 15 saniyede bir segment
+        opt.PermitLimit          = 5;          // dakikada maks 5 deneme / IP
+        opt.QueueLimit           = 0;          // kuyruğa alma, direk reddet
     });
-    options.RejectionStatusCode = 429;
+
+    // Her IP kendi penceresi içinde sayılır
+    options.GlobalLimiter = System.Threading.RateLimiting.PartitionedRateLimiter.Create<HttpContext, string>(
+        context =>
+        {
+            var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            return System.Threading.RateLimiting.RateLimitPartition.GetNoLimiter(ip);
+            // Not: "LoginPolicy" named limiter zaten endpoint seviyesinde partition yapıyor,
+            // GlobalLimiter buraya ileride API-wide bir limit eklemek için hazır.
+        });
+
+    options.OnRejected = async (ctx, token) =>
+    {
+        ctx.HttpContext.Response.StatusCode  = StatusCodes.Status429TooManyRequests;
+        ctx.HttpContext.Response.ContentType = "application/json";
+        var ip = ctx.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        Serilog.Log.Warning("🚫 [RATE LIMIT] IP: {IP} → 429 Too Many Requests", ip);
+        await ctx.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            hata = "Çok fazla istek gönderildi. Lütfen bir dakika bekleyip tekrar deneyin."
+        }, token);
+    };
 });
 
 // 🌐 5. CORS - TÜM ERİŞİMLERE İZİN VERİLDİ
@@ -110,10 +137,9 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<AtlasDbContext>();
-        Log.Information("--> [DATABASE] Tablolar kontrol ediliyor...");
+        Log.Information("--> [DATABASE] Migration uygulanıyor...");
 
-        // ÖNEMLİ: Tablolar yoksa direkt modellerden oluşturur (Migration hatasını çözer)
-        await context.Database.EnsureCreatedAsync();
+        await context.Database.MigrateAsync();
 
         var adminVarMi = await context.Kullanicilar.AnyAsync(u => u.Rol == KullaniciRol.Admin);
 

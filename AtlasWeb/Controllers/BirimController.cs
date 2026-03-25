@@ -22,10 +22,7 @@ namespace AtlasWeb.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBirimler()
         {
-            // AktifMi filtresi: ISoftDelete uyguluyor ama BaseEntity'den türemediği için Global Filter kapsamı dışında.
-            // Bu nedenle burada manuel filtre önüne alındı.
             var birimler = await _context.Birimler
-                .Where(b => b.AktifMi)
                 .OrderBy(b => b.Ad)
                 .ToListAsync();
             return Ok(birimler);
@@ -57,7 +54,7 @@ namespace AtlasWeb.Controllers
             var birim = await _context.Birimler.FindAsync(id);
             if (birim == null) return NotFound(new { hata = "Ölçü birimi bulunamadı." });
 
-            _context.Birimler.Remove(birim); // Interceptor vasıtasıyla AktifMi = false olur (Soft Delete)
+            _context.Birimler.Remove(birim); // SaveChanges: ISoftDelete (Birim) için soft delete
             await _context.SaveChangesAsync();
 
             return Ok(new { mesaj = "Ölçü birimi sistemden başarıyla silindi (pasife çekildi)." });

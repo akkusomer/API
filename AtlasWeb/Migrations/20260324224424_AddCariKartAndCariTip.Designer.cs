@@ -3,6 +3,7 @@ using System;
 using AtlasWeb.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AtlasWeb.Migrations
 {
     [DbContext(typeof(AtlasDbContext))]
-    partial class AtlasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260324224424_AddCariKartAndCariTip")]
+    partial class AddCariKartAndCariTip
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -325,9 +328,6 @@ namespace AtlasWeb.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("FailedLoginCount")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime?>("GuncellemeTarihi")
                         .HasColumnType("timestamp with time zone");
 
@@ -337,14 +337,17 @@ namespace AtlasWeb.Migrations
                     b.Property<DateTime>("KayitTarihi")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("LockoutEnd")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<Guid>("MusteriId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("OlusturanKullanici")
                         .HasColumnType("text");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Rol")
                         .IsRequired()
@@ -373,40 +376,6 @@ namespace AtlasWeb.Migrations
                         .HasDatabaseName("IX_Kullanici_SaaS_Performance");
 
                     b.ToTable("Kullanicilar");
-                });
-
-            modelBuilder.Entity("AtlasWeb.Models.KullaniciToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DeviceInfo")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ExpiryTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("KullaniciId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("RefreshTokenHash")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RefreshTokenHash")
-                        .IsUnique()
-                        .HasDatabaseName("IX_KullaniciTokenler_RefreshTokenHash_Unique");
-
-                    b.HasIndex("KullaniciId", "ExpiryTime")
-                        .HasDatabaseName("IX_KullaniciTokenler_KullaniciId_Expiry");
-
-                    b.ToTable("KullaniciTokenler");
                 });
 
             modelBuilder.Entity("AtlasWeb.Models.Musteri", b =>
@@ -536,17 +505,6 @@ namespace AtlasWeb.Migrations
                     b.Navigation("CariTip");
                 });
 
-            modelBuilder.Entity("AtlasWeb.Models.KullaniciToken", b =>
-                {
-                    b.HasOne("AtlasWeb.Models.Kullanici", "Kullanici")
-                        .WithMany("Tokens")
-                        .HasForeignKey("KullaniciId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Kullanici");
-                });
-
             modelBuilder.Entity("AtlasWeb.Models.Stok", b =>
                 {
                     b.HasOne("AtlasWeb.Models.Birim", "Birim")
@@ -561,11 +519,6 @@ namespace AtlasWeb.Migrations
             modelBuilder.Entity("AtlasWeb.Models.CariTip", b =>
                 {
                     b.Navigation("CariKartlar");
-                });
-
-            modelBuilder.Entity("AtlasWeb.Models.Kullanici", b =>
-                {
-                    b.Navigation("Tokens");
                 });
 #pragma warning restore 612, 618
         }

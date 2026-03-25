@@ -5,7 +5,7 @@ namespace AtlasWeb.Models
     public enum KimlikTuruEnum { VKN, TCKN }
     public enum PaketTipiEnum { Standart, Premium, Kurumsal }
 
-    public class Musteri
+    public class Musteri : ISoftDelete
     {
         [Key] // Bu satır Id'nin Primary Key (Birincil Anahtar) olduğunu belirtir
         public Guid Id { get; set; }

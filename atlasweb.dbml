@@ -1,0 +1,158 @@
+// =============================================================================
+// AtlasWeb — DBML (dbdiagram.io / dbdocs uyumlu)
+// Kaynak: AtlasWeb/Models + Data/AtlasDbContext.cs
+//
+// Not: EF migration snapshot (AtlasDbContextModelSnapshot) tüm tabloları veya
+// güncel kolon tiplerini yansıtmayabilir. Özellikle Faturalar.Id ve yeni tablolar
+// için "dotnet ef migrations add" ile şemayı doğrulayın.
+// =============================================================================
+
+Table Musteriler {
+  Id uuid [primary key, note: 'Şirket / kiracı']
+  MusteriKodu text [not null]
+  Unvan text [not null]
+  VergiNo text [not null]
+  VergiDairesi text [not null]
+  KimlikTuru text [not null, note: 'VKN | TCKN vb. (DB text)']
+  GsmNo text [not null]
+  EPosta text [not null]
+  Il text [not null]
+  Ilce text [not null]
+  AdresDetay text [not null]
+  PaketTipi text [not null, note: 'Standart | Premium | Kurumsal (DB text)']
+  AktifMi boolean [not null, default: true]
+  KayitTarihi timestamptz [not null]
+
+  Note: 'Kiracı kök kaydı; ITenantEntity değil, global filtre: admin veya Id = CurrentTenantId'
+}
+
+Table Kullanicilar {
+  Id uuid [primary key]
+  Ad varchar(100) [not null]
+  Soyad varchar(100) [not null]
+  EPosta text [not null]
+  SifreHash text [not null]
+  Rol text [not null, note: 'Admin | User']
+  MusteriId uuid [not null, note: 'FK → Musteriler.Id (kiracı bağlantısı)']
+  AktifMi boolean [not null]
+  KayitTarihi timestamptz [not null]
+  RefreshToken text
+  RefreshTokenExpiryTime timestamptz
+  OlusturanKullanici text
+  GuncellemeTarihi timestamptz
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamptz
+  SilenKullanici text
+  Source integer [not null, note: 'AuditSource enum']
+
+  Indexes {
+    (MusteriId, AktifMi, KayitTarihi) [name: 'IX_Kullanici_SaaS_Performance']
+  }
+
+  Note: 'BaseEntity alanları; kullanıcı şirkete MusteriId ile bağlanır'
+}
+
+Ref: Kullanicilar.MusteriId > Musteriler.Id [delete: restrict, update: no action]
+
+
+Table Faturalar {
+  Id uuid [primary key, note: 'Kodda Guid; eski migration int olabilir — migration ile hizalayın']
+  MusteriId uuid [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamptz [not null]
+  FaturaNo text [not null]
+  Tutar decimal [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamptz
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamptz
+  SilenKullanici text
+  Source integer [not null]
+
+  Indexes {
+    (MusteriId, AktifMi, KayitTarihi) [name: 'IX_Fatura_SaaS_Performance']
+  }
+
+  Note: 'Kiracıya ait fatura; soft delete AktifMi'
+}
+
+Ref: Faturalar.MusteriId > Musteriler.Id [delete: restrict, update: no action]
+
+
+Table Birimler {
+  Id uuid [primary key, note: 'Kiracıdan bağımsız global ölçü birimi']
+  Ad text [not null]
+  Sembol text [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamptz [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamptz
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamptz
+  SilenKullanici text
+  Source integer [not null]
+
+  Note: 'ITenantEntity yok; tüm kiracılar ortak kullanır'
+}
+
+
+Table Stoklar {
+  Id uuid [primary key]
+  MusteriId uuid [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamptz [not null]
+  StokKodu text [not null]
+  StokAdi text [not null]
+  YedekAdi text
+  BirimId uuid [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamptz
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamptz
+  SilenKullanici text
+  Source integer [not null]
+
+  Indexes {
+    (MusteriId, AktifMi, KayitTarihi) [name: 'IX_Stok_SaaS_Performance']
+  }
+
+  Note: 'Stok kartı; kiracı + birim FK'
+}
+
+Ref: Stoklar.MusteriId > Musteriler.Id [delete: restrict, update: no action]
+Ref: Stoklar.BirimId > Birimler.Id [delete: restrict, update: no action]
+
+
+Table AuditLogs {
+  Id uuid [primary key]
+  EntityName text [not null]
+  EntityId text [not null]
+  Action text [not null, note: 'Login, Logout, Insert, ...']
+  UserId text
+  Timestamp timestamptz [not null]
+
+  Note: 'DbContext’te var; bazı migration’lar tabloyu kaldırmış olabilir — şemayı kontrol edin'
+}
+
+
+Table ErrorLogs {
+  Id integer [primary key, increment, note: 'Identity / serial']
+  HataMesaji text [not null]
+  HataDetayi text
+  IstekYolu text
+  KullaniciId text
+  Tarih timestamptz [not null]
+
+  Note: 'ExceptionMiddleware logları'
+}
+
+
+// -----------------------------------------------------------------------------
+// İlişki özeti (Ref satırları yukarıda)
+// -----------------------------------------------------------------------------
+// Musteriler 1 ──< * Kullanicilar   (Kullanicilar.MusteriId)
+// Musteriler 1 ──< * Faturalar      (Faturalar.MusteriId)
+// Musteriler 1 ──< * Stoklar        (Stoklar.MusteriId)
+// Birimler   1 ──< * Stoklar        (Stoklar.BirimId)
+// AuditLogs / ErrorLogs: FK yok (uygulama düzeyinde)
+// -----------------------------------------------------------------------------
