@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -104,6 +104,9 @@ namespace AtlasWeb.Migrations
                 type: "integer",
                 nullable: false,
                 defaultValue: 0);
+
+            migrationBuilder.Sql("TRUNCATE TABLE \"Faturalar\" CASCADE;");
+            migrationBuilder.Sql("ALTER TABLE \"Faturalar\" ALTER COLUMN \"Id\" TYPE integer USING 0;");
 
             migrationBuilder.AlterColumn<int>(
                 name: "Id",
