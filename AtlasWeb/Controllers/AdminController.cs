@@ -122,11 +122,12 @@ namespace AtlasWeb.Controllers
         [HttpDelete("kullanici/{id}")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
-            var user = await _context.Kullanicilar.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null) return NotFound();
+            var affected = await _context.Kullanicilar
+                .IgnoreQueryFilters()
+                .Where(u => u.Id == id)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.AktifMi, false));
 
-            user.AktifMi = false;
-            await _context.SaveChangesAsync();
+            if (affected == 0) return NotFound(new { mesaj = "Kullanıcı bulunamadı." });
 
             return Ok(new { mesaj = "Kullanıcı pasife alındı." });
         }

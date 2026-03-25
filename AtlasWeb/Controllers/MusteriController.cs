@@ -99,12 +99,13 @@ namespace AtlasWeb.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SoftDelete(Guid id)
         {
-            var musteri = await _context.Musteriler.FindAsync(id);
-            if (musteri == null) return NotFound(new { hata = "Belirtilen müşteri bulunamadı." });
+            // 🛡️ ExecuteUpdateAsync: Filtrelere takılmadan direkt veritabanı seviyesinde güncelleme yapar.
+            var affected = await _context.Musteriler
+                .IgnoreQueryFilters()
+                .Where(m => m.Id == id)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.AktifMi, false));
 
-            // 🛡️ Safe Soft Delete: If there are users, don't hard remove
-            musteri.AktifMi = false;
-            await _context.SaveChangesAsync();
+            if (affected == 0) return NotFound(new { hata = "Belirtilen müşteri bulunamadı." });
 
             return Ok(new { mesaj = "Müşteri pasif duruma getirildi." });
         }
