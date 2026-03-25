@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,6 +12,7 @@ namespace AtlasWeb.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("ALTER TABLE \"Musteriler\" ALTER COLUMN \"PaketTipi\" TYPE integer USING \"PaketTipi\"::integer;");
             migrationBuilder.AlterColumn<int>(
                 name: "PaketTipi",
                 table: "Musteriler",
@@ -20,6 +21,7 @@ namespace AtlasWeb.Migrations
                 oldClrType: typeof(string),
                 oldType: "text");
 
+            migrationBuilder.Sql("ALTER TABLE \"Musteriler\" ALTER COLUMN \"KimlikTuru\" TYPE integer USING \"KimlikTuru\"::integer;");
             migrationBuilder.AlterColumn<int>(
                 name: "KimlikTuru",
                 table: "Musteriler",
@@ -46,6 +48,8 @@ namespace AtlasWeb.Migrations
                 oldType: "character varying(100)",
                 oldMaxLength: 100);
 
+            migrationBuilder.Sql("ALTER TABLE \"Faturalar\" ALTER COLUMN \"Id\" DROP DEFAULT;");
+            migrationBuilder.Sql("ALTER TABLE \"Faturalar\" ALTER COLUMN \"Id\" TYPE uuid USING (md5(\"Id\"::text)::uuid);");
             migrationBuilder.AlterColumn<Guid>(
                 name: "Id",
                 table: "Faturalar",
