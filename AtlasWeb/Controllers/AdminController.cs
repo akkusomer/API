@@ -152,7 +152,7 @@ namespace AtlasWeb.Controllers
         }
 
         [HttpPost("yonetici")]
-        public async Task<IActionResult> AddYonetici([FromBody] RegisterUserDto dto)
+        public async Task<IActionResult> AddYonetici([FromBody] RegisterAdminDto dto)
         {
             var yeni = new Kullanici
             {
