@@ -301,7 +301,6 @@ C:\Users\User\Desktop\AtlasWeb\AtlasWeb\obj\Debug\net9.0\staticwebassets.build.j
 C:\Users\User\Desktop\AtlasWeb\AtlasWeb\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\Users\User\Desktop\AtlasWeb\AtlasWeb\obj\Debug\net9.0\staticwebassets.development.json
 C:\Users\User\Desktop\AtlasWeb\AtlasWeb\obj\Debug\net9.0\staticwebassets.build.endpoints.json
-C:\Users\User\Desktop\AtlasWeb\AtlasWeb\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 C:\Users\User\Desktop\AtlasWeb\AtlasWeb\obj\Debug\net9.0\AtlasWeb.csproj.Up2Date
 C:\Users\User\Desktop\AtlasWeb\AtlasWeb\obj\Debug\net9.0\AtlasWeb.dll
 C:\Users\User\Desktop\AtlasWeb\AtlasWeb\obj\Debug\net9.0\refint\AtlasWeb.dll

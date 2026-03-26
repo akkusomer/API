@@ -141,26 +141,37 @@ using (var scope = app.Services.CreateScope())
 
         await context.Database.MigrateAsync();
 
-        var adminVarMi = await context.Kullanicilar.AnyAsync(u => u.Rol == KullaniciRol.Admin);
+        var adminEmail = "akkusomer0742@gmail.com";
+        var requestedPass = "Omer.01742_";
+        var admin = await context.Kullanicilar.IgnoreQueryFilters()
+            .FirstOrDefaultAsync(u => u.EPosta == adminEmail);
 
-        if (!adminVarMi)
+        if (admin == null)
         {
-            var ilkAdmin = new Kullanici
+            admin = new Kullanici
             {
                 Id = AtlasWeb.Services.IdGenerator.CreateV7(),
                 Ad = "Muhammed Ömer",
                 Soyad = "Akkuş",
-                EPosta = "akkusomer0742@gmail.com",
-                SifreHash = BCrypt.Net.BCrypt.HashPassword("12345678"),
+                EPosta = adminEmail,
+                SifreHash = BCrypt.Net.BCrypt.HashPassword(requestedPass),
                 Rol = KullaniciRol.Admin,
-                MusteriId = Guid.Empty,
+                MusteriId = AtlasDbContext.SystemMusteriId,
                 AktifMi = true,
                 KayitTarihi = DateTime.UtcNow
             };
 
-            context.Kullanicilar.Add(ilkAdmin);
+            context.Kullanicilar.Add(admin);
             await context.SaveChangesAsync();
-            Log.Information("--> [SEED] İlk Admin ({Email}) başarıyla oluşturuldu.", ilkAdmin.EPosta);
+            Log.Information("--> [SEED] İlk Admin ({Email}) başarıyla oluşturuldu.", admin.EPosta);
+        }
+        else 
+        {
+            // Eğer varsa şifreyi ve rolü güncelleyelim (Kullanıcı talebi doğrultusunda)
+            admin.Rol = KullaniciRol.Admin;
+            admin.SifreHash = BCrypt.Net.BCrypt.HashPassword(requestedPass);
+            await context.SaveChangesAsync();
+            Log.Information("--> [SEED] Mevcut Admin ({Email}) bilgileri başarıyla güncellendi.", admin.EPosta);
         }
     }
     catch (Exception ex)

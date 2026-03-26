@@ -163,7 +163,7 @@ namespace AtlasWeb.Controllers
                 EPosta = dto.EPosta,
                 SifreHash = BCrypt.Net.BCrypt.HashPassword(dto.Sifre),
                 Rol = KullaniciRol.Admin,
-                MusteriId = Guid.Empty, // Sistem adminleri MusteriId'den bağımsız olabilir veya Guid.Empty kullanılabilir
+                MusteriId = AtlasDbContext.SystemMusteriId, // Sistem yöneticisini sistem şirketine (AtlasWeb) bağlıyoruz.
                 AktifMi = true
             };
 

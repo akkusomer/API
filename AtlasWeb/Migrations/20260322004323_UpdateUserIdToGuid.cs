@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -82,20 +82,25 @@ namespace AtlasWeb.Migrations
                     END IF;
                 END $$;");
 
-            // --- 5. FATURALAR ID DÖNÜŞÜMÜ ---
-            migrationBuilder.Sql("TRUNCATE TABLE \"Faturalar\" CASCADE;");
-            migrationBuilder.Sql("ALTER TABLE \"Faturalar\" ALTER COLUMN \"Id\" TYPE integer USING 0;");
+            // --- 5. FATURALAR ID DÜZELTMESİ (GUID OLARAK KALMALI) ---
+            // Model Guid olduğu için integer dönüşümü yapmıyoruz.
+            // Sadece diğer gerekli kolonları ekleyen SQL bloğunu güvenli hale getiriyoruz.
+            
+            migrationBuilder.Sql(@"
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Faturalar' AND column_name = 'GuncellemeTarihi') THEN
+                        ALTER TABLE ""Faturalar"" ADD COLUMN ""GuncellemeTarihi"" timestamp with time zone;
+                    END IF;
+                    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Faturalar' AND column_name = 'GuncelleyenKullanici') THEN
+                        ALTER TABLE ""Faturalar"" ADD COLUMN ""GuncelleyenKullanici"" text;
+                    END IF;
+                    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'Faturalar' AND column_name = 'OlusturanKullanici') THEN
+                        ALTER TABLE ""Faturalar"" ADD COLUMN ""OlusturanKullanici"" text;
+                    END IF;
+                END $$;");
 
-            migrationBuilder.AlterColumn<int>(
-                name: "Id",
-                table: "Faturalar",
-                type: "integer",
-                nullable: false,
-                oldClrType: typeof(Guid),
-                oldType: "uuid")
-                .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-            // --- 6. GÜVENLİ INDEX OLUŞTURMA (HATA VEREN YER) ---
+            // --- 6. GÜVENLİ INDEX OLUŞTURMA ---
             migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IX_Kullanici_SaaS_Performance\" ON \"Kullanicilar\" (\"MusteriId\", \"AktifMi\", \"KayitTarihi\");");
         }
 

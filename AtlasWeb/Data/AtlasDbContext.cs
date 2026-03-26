@@ -7,12 +7,13 @@ namespace AtlasWeb.Data
     public class AtlasDbContext : DbContext
     {
         private readonly ICurrentUserService _currentUserService;
+        public static readonly Guid SystemMusteriId = new Guid("e06c1341-3b74-4b8c-8c6e-984bb646e297");
 
         public AtlasDbContext(DbContextOptions<AtlasDbContext> options, ICurrentUserService currentUserService)
             : base(options) => _currentUserService = currentUserService;
 
         public bool IsAdminForQueryFilter => _currentUserService.IsAdmin;
-        public Guid CurrentTenantId => _currentUserService.MusteriId ?? Guid.Empty;
+        public Guid CurrentTenantId => _currentUserService.MusteriId ?? SystemMusteriId;
 
         // --- DbSets ---
         public DbSet<Musteri> Musteriler { get; set; }
@@ -85,7 +86,7 @@ namespace AtlasWeb.Data
             // ── AtlasWeb Sistem Şirketi Sabitleme ──────────────────────────────────
             modelBuilder.Entity<Musteri>().HasData(new Musteri
             {
-                Id = Guid.Empty,
+                Id = SystemMusteriId,
                 MusteriKodu = "ATLASWEB",
                 Unvan = "AtlasWeb Sistem Yönetimi",
                 VergiNo = "00000000000",
@@ -117,7 +118,7 @@ namespace AtlasWeb.Data
                 {
                     case EntityState.Added:
                         if (entry.Entity.Id == Guid.Empty) entry.Entity.Id = IdGenerator.CreateV7();
-                        if (entry.Entity.MusteriId == Guid.Empty) entry.Entity.MusteriId = mid;
+                        if (entry.Entity.MusteriId == Guid.Empty) entry.Entity.MusteriId = mid == Guid.Empty ? SystemMusteriId : mid;
                         entry.Entity.OlusturanKullanici = user;
                         auditEntries.Add(new AuditLog { Id = IdGenerator.CreateV7(), EntityName = entry.Entity.GetType().Name, EntityId = entry.Entity.Id.ToString(), Action = "Insert", UserId = user, Timestamp = DateTime.UtcNow });
                         break;
