@@ -24,7 +24,7 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// 🏗️ 2. VERİTABANI BAĞLANTISI (PostgreSQL) — parola: ConnectionStrings__DefaultConnection veya User Secrets
+// 🏗️ 2. VERİTABANI BAĞLANTISI (PostgreSQL)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrWhiteSpace(connectionString))
     throw new InvalidOperationException("ConnectionStrings:DefaultConnection tanımlı değil.");
@@ -40,7 +40,7 @@ builder.Services.AddControllers();
 // 🛡️ 3. JWT AUTHENTICATION
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
-    ?? throw new InvalidOperationException("JWT key yapılandırılmamış. Jwt:Key veya JWT_SECRET_KEY ortam değişkenini tanımlayın.");
+    ?? throw new InvalidOperationException("JWT key yapılandırılmamış.");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -65,39 +65,26 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddRateLimiter(options =>
 {
-    // 🛡️ Sliding window per IP — her IP kendi bağımsız baskını alır (shared bucket sorunu çözüldü)
     options.AddSlidingWindowLimiter("LoginPolicy", opt =>
     {
         opt.Window               = TimeSpan.FromMinutes(1);
-        opt.SegmentsPerWindow    = 4;          // 15 saniyede bir segment
-        opt.PermitLimit          = 5;          // dakikada maks 5 deneme / IP
-        opt.QueueLimit           = 0;          // kuyruğa alma, direk reddet
+        opt.SegmentsPerWindow    = 4;
+        opt.PermitLimit          = 5;
+        opt.QueueLimit           = 0;
     });
 
-    // Her IP kendi penceresi içinde sayılır
-    options.GlobalLimiter = System.Threading.RateLimiting.PartitionedRateLimiter.Create<HttpContext, string>(
-        context =>
-        {
-            var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            return System.Threading.RateLimiting.RateLimitPartition.GetNoLimiter(ip);
-            // Not: "LoginPolicy" named limiter zaten endpoint seviyesinde partition yapıyor,
-            // GlobalLimiter buraya ileride API-wide bir limit eklemek için hazır.
-        });
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(
+        context => RateLimitPartition.GetNoLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "unknown"));
 
     options.OnRejected = async (ctx, token) =>
     {
         ctx.HttpContext.Response.StatusCode  = StatusCodes.Status429TooManyRequests;
         ctx.HttpContext.Response.ContentType = "application/json";
-        var ip = ctx.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        Serilog.Log.Warning("🚫 [RATE LIMIT] IP: {IP} → 429 Too Many Requests", ip);
-        await ctx.HttpContext.Response.WriteAsJsonAsync(new
-        {
-            hata = "Çok fazla istek gönderildi. Lütfen bir dakika bekleyip tekrar deneyin."
-        }, token);
+        await ctx.HttpContext.Response.WriteAsJsonAsync(new { hata = "Çok fazla istek gönderildi." }, token);
     };
 });
 
-// 🌐 5. CORS - TÜM ERİŞİMLERE İZİN VERİLDİ
+// 🌐 5. CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AtlasWebCors", policy =>
@@ -108,33 +95,20 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDistributedMemoryCache();
 
-// 📄 6. SWAGGER (JWT BEARER DESTEKLİ)
+// 📄 6. SWAGGER
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "AtlasWeb API", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "JWT token'ınızı 'Bearer <token>' formatında girin."
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {{
-        new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }},
-        Array.Empty<string>()
-    }});
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme { Name = "Authorization", Type = SecuritySchemeType.ApiKey, Scheme = "Bearer", BearerFormat = "JWT", In = ParameterLocation.Header });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement { { new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } }, Array.Empty<string>() } });
 });
 
 var app = builder.Build();
 
-// --- 🚀 7. [DATABASE INITIALIZATION] ---
-// Veritabanı başlatma ve tabloları otomatik oluşturma mantığı tamamen kaldırılmıştır. 
-// Artık veritabanı şeması manuel olarak (SQL ile) yönetilecektir.
+// 🚀 7. [DATABASE]
+// Seeding ve otomatik migration mantığı tamamen söküldü.
 
-// 🛡️ 8. MIDDLEWARE PIPELINE (Sıralama Kritik!)
+// 🛡️ 8. MIDDLEWARE PIPELINE
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<SecurityCircuitBreaker>();
 
