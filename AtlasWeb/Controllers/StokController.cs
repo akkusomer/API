@@ -96,10 +96,10 @@ namespace AtlasWeb.Controllers
 
                 return Ok(new { mesaj = "Stok kartı başarıyla açıldı.", stokKodu = yeniStok.StokKodu });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return Conflict(new { hata = "Stok kodu üretiminde çakışma meydana geldi. Lütfen tekrar deneyiniz." });
+                return Conflict(new { hata = "Stok kodu üretiminde çakışma meydana geldi.", detay = ex.Message, inner = ex.InnerException?.Message });
             }
         }
     }
