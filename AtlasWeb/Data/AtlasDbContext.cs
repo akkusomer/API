@@ -83,24 +83,7 @@ namespace AtlasWeb.Data
                 .HasIndex(t => new { t.KullaniciId, t.ExpiryTime })
                 .HasDatabaseName("IX_KullaniciTokenler_KullaniciId_Expiry");
 
-            // ── AtlasWeb Sistem Şirketi Sabitleme ──────────────────────────────────
-            modelBuilder.Entity<Musteri>().HasData(new Musteri
-            {
-                Id = SystemMusteriId,
-                MusteriKodu = "ATLASWEB",
-                Unvan = "AtlasWeb Sistem Yönetimi",
-                VergiNo = "00000000000",
-                VergiDairesi = "SİSTEM",
-                KimlikTuru = KimlikTuruEnum.VKN,
-                GsmNo = "0000000000",
-                EPosta = "admin@atlasweb.com",
-                Il = "ANKARA",
-                Ilce = "ÇANKAYA",
-                AdresDetay = "SİSTEM MERKEZİ",
-                PaketTipi = PaketTipiEnum.Kurumsal,
-                AktifMi = true,
-                KayitTarihi = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-            });
+            // ── AtlasWeb Sistem Şirketi Sabitleme (Seed datası kaldırıldı, manuel SQL ile yönetiliyor) ──
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken ct = default)

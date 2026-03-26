@@ -130,55 +130,9 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// --- 🚀 7. [DATABASE INITIALIZATION & SEED DATA] ---
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<AtlasDbContext>();
-        Log.Information("--> [DATABASE] Migration uygulanıyor...");
-
-        await context.Database.MigrateAsync();
-
-        var adminEmail = "akkusomer0742@gmail.com";
-        var requestedPass = "Omer.01742_";
-        var admin = await context.Kullanicilar.IgnoreQueryFilters()
-            .FirstOrDefaultAsync(u => u.EPosta == adminEmail);
-
-        if (admin == null)
-        {
-            admin = new Kullanici
-            {
-                Id = AtlasWeb.Services.IdGenerator.CreateV7(),
-                Ad = "Muhammed Ömer",
-                Soyad = "Akkuş",
-                EPosta = adminEmail,
-                SifreHash = BCrypt.Net.BCrypt.HashPassword(requestedPass),
-                Rol = KullaniciRol.Admin,
-                MusteriId = AtlasDbContext.SystemMusteriId,
-                AktifMi = true,
-                KayitTarihi = DateTime.UtcNow
-            };
-
-            context.Kullanicilar.Add(admin);
-            await context.SaveChangesAsync();
-            Log.Information("--> [SEED] İlk Admin ({Email}) başarıyla oluşturuldu.", admin.EPosta);
-        }
-        else 
-        {
-            // Eğer varsa şifreyi ve rolü güncelleyelim (Kullanıcı talebi doğrultusunda)
-            admin.Rol = KullaniciRol.Admin;
-            admin.SifreHash = BCrypt.Net.BCrypt.HashPassword(requestedPass);
-            await context.SaveChangesAsync();
-            Log.Information("--> [SEED] Mevcut Admin ({Email}) bilgileri başarıyla güncellendi.", admin.EPosta);
-        }
-    }
-    catch (Exception ex)
-    {
-        Log.Error(ex, "--> [ERROR] Veritabanı başlatılırken hata oluştu!");
-    }
-}
+// --- 🚀 7. [DATABASE INITIALIZATION] ---
+// Veritabanı başlatma ve tabloları otomatik oluşturma mantığı tamamen kaldırılmıştır. 
+// Artık veritabanı şeması manuel olarak (SQL ile) yönetilecektir.
 
 // 🛡️ 8. MIDDLEWARE PIPELINE (Sıralama Kritik!)
 app.UseMiddleware<ExceptionMiddleware>();
