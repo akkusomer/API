@@ -106,5 +106,39 @@ namespace AtlasWeb.Controllers
                 }
             });
         }
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Guncelle(Guid id, [FromBody] StokDto dto)
+        {
+            var stok = await _context.Stoklar.FindAsync(id);
+            if (stok == null) return NotFound(new { hata = "Stok bulunamadı." });
+
+            if (stok.MusteriId != _currentUserService.MusteriId)
+                return Unauthorized(new { hata = "Bu stok üzerinde işlem yapma yetkiniz bulunmamaktadır." });
+
+            var birimVarMi = await _context.Birimler.AnyAsync(b => b.Id == dto.BirimId);
+            if (!birimVarMi) return BadRequest(new { hata = "Seçilen ölçü birimi bulunamadı." });
+
+            stok.StokAdi = dto.StokAdi;
+            stok.YedekAdi = dto.YedekAdi;
+            stok.BirimId = dto.BirimId;
+
+            await _context.SaveChangesAsync();
+            return Ok(new { mesaj = "Stok kartı güncellendi." });
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Sil(Guid id)
+        {
+            var count = await _context.Stoklar
+                .Where(s => s.Id == id && s.MusteriId == _currentUserService.MusteriId)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.AktifMi, false)
+                                          .SetProperty(p => p.SilinmeTarihi, DateTime.UtcNow)
+                                          .SetProperty(p => p.SilenKullanici, _currentUserService.EPosta));
+
+            if (count == 0) return NotFound(new { hata = "Stok bulunamadı veya silme yetkiniz yok." });
+
+            return Ok(new { mesaj = "Stok kartı silindi." });
+        }
     }
 }
