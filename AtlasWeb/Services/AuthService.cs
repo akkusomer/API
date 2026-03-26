@@ -156,7 +156,17 @@ namespace AtlasWeb.Services
                 CreatedAt        = DateTime.UtcNow
             });
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Happens if another simultaneous request already "consumed" this refresh token by rotating it.
+                _logger.LogWarning(
+                    "⚠️ [REFRESH CONFLICT] Token already rotated or consumed concurrently. IP: {IP}", ipAddress);
+                return AuthResult.Invalid();
+            }
 
             _logger.LogInformation(
                 "🔄 [TOKEN REFRESH] UserId: {UserId} | IP: {IP} | JTI: {Jti}",

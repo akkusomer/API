@@ -75,6 +75,9 @@ namespace AtlasWeb.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateMusteri(Guid id, [FromBody] MusteriDto dto)
         {
+            if (id == Guid.Empty && !dto.AktifMi)
+                return BadRequest(new { hata = "⚠️ Sistem şirketi (AtlasWeb) pasif yapılamaz!" });
+
             var musteri = await _context.Musteriler.FindAsync(id);
             if (musteri == null) return NotFound();
 
@@ -89,7 +92,7 @@ namespace AtlasWeb.Controllers
             musteri.Ilce = dto.Ilce;
             musteri.AdresDetay = dto.AdresDetay;
             musteri.PaketTipi = dto.PaketTipi;
-            musteri.AktifMi = dto.AktifMi;
+            musteri.AktifMi = id == Guid.Empty ? true : dto.AktifMi;
 
             await _context.SaveChangesAsync();
             return Ok(musteri);
@@ -99,6 +102,9 @@ namespace AtlasWeb.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SoftDelete(Guid id)
         {
+            if (id == Guid.Empty)
+                return BadRequest(new { hata = "⚠️ Sistem şirketi (AtlasWeb) pasife alınamaz!" });
+
             // 🛡️ ExecuteUpdateAsync: Filtrelere takılmadan direkt veritabanı seviyesinde güncelleme yapar.
             var affected = await _context.Musteriler
                 .IgnoreQueryFilters()
@@ -114,6 +120,9 @@ namespace AtlasWeb.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> HardDelete(Guid id)
         {
+            if (id == Guid.Empty)
+                return BadRequest(new { hata = "⚠️ Sistem şirketi (AtlasWeb) kalıcı olarak silinemez!" });
+
             // ExecuteDeleteAsync veritabanına direkt DELETE FROM sorgusu atar, EF Core ChangeTracker'ı atlar (Kalıcı Silme).
             var silinenKayit = await _context.Musteriler.Where(m => m.Id == id).ExecuteDeleteAsync();
             
