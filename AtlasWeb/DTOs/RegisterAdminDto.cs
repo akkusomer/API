@@ -5,6 +5,7 @@ namespace AtlasWeb.DTOs
         public string Ad { get; set; } = string.Empty;
         public string Soyad { get; set; } = string.Empty;
         public string EPosta { get; set; } = string.Empty;
+        public string? Telefon { get; set; }
         public string Sifre { get; set; } = string.Empty;
     }
 }

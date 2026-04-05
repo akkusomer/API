@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: atlasweb_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${ATLASWEB_DB_PASSWORD:?ATLASWEB_DB_PASSWORD is required}
+      POSTGRES_DB: AtlasWebDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./AtlasWeb
+      dockerfile: Dockerfile
+    container_name: atlasweb_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=AtlasWebDB;Username=postgres
+      ATLASWEB_DB_PASSWORD: ${ATLASWEB_DB_PASSWORD:?ATLASWEB_DB_PASSWORD is required}
+      JWT_SECRET_KEY: ${ATLASWEB_JWT_KEY:?ATLASWEB_JWT_KEY is required}
+      SeedData__AdminPassword: ${ATLASWEB_SEED_ADMIN_PASSWORD:-}
+      Cors__AllowedOrigins__0: ${ATLASWEB_ALLOWED_ORIGIN:-}
+      Features__EnableSwagger: ${ATLASWEB_ENABLE_SWAGGER:-false}
+      Auth__AllowInsecureRefreshCookie: ${ATLASWEB_ALLOW_INSECURE_REFRESH_COOKIE:-false}
+      Email__SmtpHost: ${ATLASWEB_SMTP_HOST:-}
+      Email__Port: ${ATLASWEB_SMTP_PORT:-587}
+      Email__Username: ${ATLASWEB_SMTP_USERNAME:-}
+      Email__Password: ${ATLASWEB_SMTP_PASSWORD:-}
+      Email__FromAddress: ${ATLASWEB_SMTP_FROM_ADDRESS:-}
+      Email__FromName: ${ATLASWEB_SMTP_FROM_NAME:-AtlasWeb}
+      Email__UseSsl: ${ATLASWEB_SMTP_USE_SSL:-true}
+      Email__ResetPasswordUrl: ${ATLASWEB_RESET_PASSWORD_URL:-}
+      App__PublicBaseUrl: ${ATLASWEB_PUBLIC_BASE_URL:-}
+      Hks__BildirimEndpoint: ${HKS__BILDIRIMENDPOINT:-https://ws.gtb.gov.tr:8443/HKSBildirimService}
+      Hks__GenelEndpoint: ${HKS__GENELENDPOINT:-https://ws.gtb.gov.tr:8443/HKSGenelService}
+      Hks__UrunEndpoint: ${HKS__URUNENDPOINT:-https://ws.gtb.gov.tr:8443/HKSUrunService}
+      Hks__TimeoutSeconds: ${HKS__TIMEOUTSECONDS:-60}
+    ports:
+      - "80:8080"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

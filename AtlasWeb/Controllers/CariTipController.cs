@@ -1,6 +1,7 @@
 using AtlasWeb.Data;
 using AtlasWeb.DTOs;
 using AtlasWeb.Models;
+using AtlasWeb.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,14 +14,26 @@ namespace AtlasWeb.Controllers
     public class CariTipController : ControllerBase
     {
         private readonly AtlasDbContext _context;
+        private readonly ICurrentUserService _currentUserService;
 
-        public CariTipController(AtlasDbContext context) => _context = context;
-
-        /// <summary>Tüm aktif cari tipleri listeler (tüm kullanıcılar görebilir).</summary>
-        [HttpGet]
-        public async Task<IActionResult> GetCariTipler()
+        public CariTipController(AtlasDbContext context, ICurrentUserService currentUserService)
         {
+            _context = context;
+            _currentUserService = currentUserService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCariTipler([FromQuery] Guid? musteriId = null)
+        {
+            var tenantId = await ResolveTargetTenantIdAsync(musteriId);
+            if (tenantId is null)
+            {
+                return Unauthorized(new { hata = "Cari tipleri listelemek icin bir sirket baglantisi gereklidir." });
+            }
+
             var tipler = await _context.CariTipler
+                .IgnoreQueryFilters()
+                .Where(ct => ct.MusteriId == tenantId.Value && ct.AktifMi)
                 .OrderBy(ct => ct.Adi)
                 .Select(ct => new
                 {
@@ -34,81 +47,145 @@ namespace AtlasWeb.Controllers
             return Ok(tipler);
         }
 
-        /// <summary>Tekil cari tip detayı.</summary>
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetById(Guid id)
+        public async Task<IActionResult> GetById(Guid id, [FromQuery] Guid? musteriId = null)
         {
-            var tip = await _context.CariTipler.FindAsync(id);
-            if (tip == null) return NotFound(new { hata = "Cari tip bulunamadı." });
+            var tenantId = await ResolveTargetTenantIdAsync(musteriId);
+            if (tenantId is null)
+            {
+                return Unauthorized(new { hata = "Cari tipi gormek icin bir sirket baglantisi gereklidir." });
+            }
+
+            var tip = await _context.CariTipler
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(ct => ct.Id == id && ct.MusteriId == tenantId.Value && ct.AktifMi);
+
+            if (tip is null)
+            {
+                return NotFound(new { hata = "Cari tip bulunamadi." });
+            }
+
             return Ok(tip);
         }
 
-        /// <summary>Yeni cari tip ekler — sadece Admin.</summary>
         [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Ekle([FromBody] CariTipDto dto)
+        public async Task<IActionResult> Ekle([FromBody] CariTipDto dto, [FromQuery] Guid? musteriId = null)
         {
-            // Aynı isimde aktif tip var mı?
+            var tenantId = await ResolveTargetTenantIdAsync(musteriId);
+            if (tenantId is null)
+            {
+                return Unauthorized(new { hata = "Cari tip tanimlamak icin bir sirket baglantisi gereklidir." });
+            }
+
             var mevcutMu = await _context.CariTipler
+                .IgnoreQueryFilters()
+                .Where(ct => ct.MusteriId == tenantId.Value && ct.AktifMi)
                 .AnyAsync(ct => ct.Adi.ToLower() == dto.Adi.ToLower());
 
             if (mevcutMu)
+            {
                 return BadRequest(new { hata = "Bu isimde bir cari tip zaten mevcut." });
+            }
 
             var yeniTip = new CariTip
             {
-                Adi      = dto.Adi,
-                Aciklama = dto.Aciklama
+                MusteriId = tenantId.Value,
+                Adi = dto.Adi.Trim(),
+                Aciklama = dto.Aciklama?.Trim()
             };
 
             _context.CariTipler.Add(yeniTip);
             await _context.SaveChangesAsync();
 
-            return Ok(new { mesaj = "Cari tip başarıyla eklendi.", id = yeniTip.Id });
+            return Ok(new { mesaj = "Cari tip basariyla eklendi.", id = yeniTip.Id });
         }
 
-        /// <summary>Cari tipi günceller — sadece Admin.</summary>
         [HttpPut("{id:guid}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Guncelle(Guid id, [FromBody] CariTipDto dto)
+        public async Task<IActionResult> Guncelle(Guid id, [FromBody] CariTipDto dto, [FromQuery] Guid? musteriId = null)
         {
-            var tip = await _context.CariTipler.FindAsync(id);
-            if (tip == null) return NotFound(new { hata = "Cari tip bulunamadı." });
+            var tenantId = await ResolveTargetTenantIdAsync(musteriId);
+            if (tenantId is null)
+            {
+                return Unauthorized(new { hata = "Cari tip guncellemek icin bir sirket baglantisi gereklidir." });
+            }
 
-            // İsim çakışması kontrolü (kendisi hariç)
+            var tip = await _context.CariTipler
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(ct => ct.Id == id && ct.MusteriId == tenantId.Value && ct.AktifMi);
+
+            if (tip is null)
+            {
+                return NotFound(new { hata = "Cari tip bulunamadi." });
+            }
+
             var cakisma = await _context.CariTipler
+                .IgnoreQueryFilters()
+                .Where(ct => ct.MusteriId == tenantId.Value && ct.AktifMi)
                 .AnyAsync(ct => ct.Adi.ToLower() == dto.Adi.ToLower() && ct.Id != id);
 
             if (cakisma)
-                return BadRequest(new { hata = "Bu isimde başka bir cari tip zaten mevcut." });
+            {
+                return BadRequest(new { hata = "Bu isimde baska bir cari tip zaten mevcut." });
+            }
 
-            tip.Adi      = dto.Adi;
-            tip.Aciklama = dto.Aciklama;
+            tip.Adi = dto.Adi.Trim();
+            tip.Aciklama = dto.Aciklama?.Trim();
 
             await _context.SaveChangesAsync();
-            return Ok(new { mesaj = "Cari tip güncellendi." });
+            return Ok(new { mesaj = "Cari tip guncellendi." });
         }
 
-        /// <summary>Cari tipi pasife çeker (soft delete) — sadece Admin.</summary>
         [HttpDelete("{id:guid}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Sil(Guid id)
+        public async Task<IActionResult> Sil(Guid id, [FromQuery] Guid? musteriId = null)
         {
-            var tip = await _context.CariTipler.FindAsync(id);
-            if (tip == null) return NotFound(new { hata = "Cari tip bulunamadı." });
+            var tenantId = await ResolveTargetTenantIdAsync(musteriId);
+            if (tenantId is null)
+            {
+                return Unauthorized(new { hata = "Cari tip silmek icin bir sirket baglantisi gereklidir." });
+            }
 
-            // Bu tipe bağlı aktif cari kart var mı?
+            var tip = await _context.CariTipler
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(ct => ct.Id == id && ct.MusteriId == tenantId.Value && ct.AktifMi);
+
+            if (tip is null)
+            {
+                return NotFound(new { hata = "Cari tip bulunamadi." });
+            }
+
             var bagliKartVarMi = await _context.CariKartlar
                 .IgnoreQueryFilters()
-                .AnyAsync(ck => ck.CariTipId == id && ck.AktifMi);
+                .AnyAsync(ck => ck.MusteriId == tenantId.Value && ck.CariTipId == id && ck.AktifMi);
 
             if (bagliKartVarMi)
-                return Conflict(new { hata = "Bu cari tipe bağlı aktif cari kartlar bulunmaktadır. Önce kartları silin veya başka bir tipe taşıyın." });
+            {
+                return Conflict(new { hata = "Bu cari tipe bagli aktif cari kartlar bulunuyor." });
+            }
 
-            _context.CariTipler.Remove(tip); // ISoftDelete → SaveChangesAsync soft-delete uygular
+            _context.CariTipler.Remove(tip);
             await _context.SaveChangesAsync();
 
-            return Ok(new { mesaj = "Cari tip pasife alındı." });
+            return Ok(new { mesaj = "Cari tip pasife alindi." });
+        }
+
+        private async Task<Guid?> ResolveTargetTenantIdAsync(Guid? requestedTenantId)
+        {
+            if (_currentUserService.MusteriId is null || _currentUserService.MusteriId == Guid.Empty)
+            {
+                return null;
+            }
+
+            var targetTenantId = _currentUserService.MusteriId.Value;
+            if (_currentUserService.IsSystemAdmin && requestedTenantId is not null && requestedTenantId != Guid.Empty)
+            {
+                targetTenantId = requestedTenantId.Value;
+            }
+
+            var tenantExists = await _context.Musteriler
+                .IgnoreQueryFilters()
+                .AnyAsync(m => m.Id == targetTenantId && m.AktifMi);
+
+            return tenantExists ? targetTenantId : null;
         }
     }
 }

@@ -1,5 +1,4 @@
 using AtlasWeb.Models;
-using FluentValidation;
 
 namespace AtlasWeb.DTOs
 {
@@ -15,7 +14,20 @@ namespace AtlasWeb.DTOs
         public string? Telefon2 { get; set; }
         public string? Gsm { get; set; }
         public string? Adres { get; set; }
+        public int? HksIlId { get; set; }
+        public int? HksIlceId { get; set; }
+        public int? HksBeldeId { get; set; }
+        public int? HksSifatId { get; set; }
+        public int? HksIsletmeTuruId { get; set; }
+        public int? HksHalIciIsyeriId { get; set; }
+        public string? Il { get; set; }
+        public string? Ilce { get; set; }
+        public string? Belde { get; set; }
+        public string? Sifat { get; set; }
+        public string? IsletmeTuru { get; set; }
+        public string? HalIciIsyeriAdi { get; set; }
         public string? VergiDairesi { get; set; }
         public string? VTCK_No { get; set; }
+        public DateTime? DogumTarihi { get; set; }
     }
 }

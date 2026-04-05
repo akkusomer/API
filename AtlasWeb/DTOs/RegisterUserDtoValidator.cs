@@ -6,11 +6,34 @@ namespace AtlasWeb.DTOs
     {
         public RegisterUserDtoValidator()
         {
-            RuleFor(x => x.MusteriId).NotEmpty().WithMessage("Müşteri/Şirket ID'si belirtilmelidir.");
-            RuleFor(x => x.Ad).NotEmpty().WithMessage("Ad boş olamaz.").MaximumLength(50).WithMessage("Ad 50 karakterden uzun olamaz.");
-            RuleFor(x => x.Soyad).NotEmpty().WithMessage("Soyad boş olamaz.").MaximumLength(50).WithMessage("Soyad 50 karakterden uzun olamaz.");
-            RuleFor(x => x.EPosta).NotEmpty().WithMessage("E-posta boş olamaz.").EmailAddress().WithMessage("Geçerli bir e-posta adresi giriniz.");
-            RuleFor(x => x.Sifre).NotEmpty().WithMessage("Şifre boş olamaz.").MinimumLength(6).WithMessage("Şifre en az 6 karakter olmalıdır.");
+            RuleFor(x => x.MusteriId)
+                .NotEmpty()
+                .WithMessage("Musteri ID belirtilmelidir.");
+
+            RuleFor(x => x.Ad)
+                .NotEmpty()
+                .MaximumLength(50);
+
+            RuleFor(x => x.Soyad)
+                .NotEmpty()
+                .MaximumLength(50);
+
+            RuleFor(x => x.EPosta)
+                .NotEmpty()
+                .EmailAddress();
+
+            RuleFor(x => x.Telefon)
+                .MaximumLength(20)
+                .When(x => !string.IsNullOrWhiteSpace(x.Telefon));
+
+            RuleFor(x => x.Sifre)
+                .NotEmpty()
+                .MinimumLength(8)
+                .MaximumLength(128)
+                .Matches("[A-Z]").WithMessage("Sifre en az bir buyuk harf icermelidir.")
+                .Matches("[a-z]").WithMessage("Sifre en az bir kucuk harf icermelidir.")
+                .Matches("[0-9]").WithMessage("Sifre en az bir rakam icermelidir.")
+                .Matches("[^a-zA-Z0-9]").WithMessage("Sifre en az bir ozel karakter icermelidir.");
         }
     }
 }

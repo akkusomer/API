@@ -14,16 +14,17 @@ namespace AtlasWeb.Controllers
     public class MusteriController : ControllerBase
     {
         private readonly AtlasDbContext _context;
+        private readonly ICurrentUserService _currentUserService;
 
-        public MusteriController(AtlasDbContext context)
+        public MusteriController(AtlasDbContext context, ICurrentUserService currentUserService)
         {
             _context = context;
+            _currentUserService = currentUserService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetMusteriler()
         {
-            // Admin tüm müşterileri; diğer kullanıcılar yalnızca bağlı oldukları kiracıyı görür (HasQueryFilter).
             var musteriler = await _context.Musteriler.ToListAsync();
             return Ok(musteriler);
         }
@@ -32,7 +33,11 @@ namespace AtlasWeb.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetTumMusterilerSilinenlerDahil()
         {
-            // Admin için global filtreyi deliyoruz
+            if (!_currentUserService.IsSystemAdmin)
+            {
+                return Forbid();
+            }
+
             var tumKayitlar = await _context.Musteriler.IgnoreQueryFilters().ToListAsync();
             return Ok(tumKayitlar);
         }
@@ -41,25 +46,45 @@ namespace AtlasWeb.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateMusteri([FromBody] MusteriDto dto)
         {
-            if (await _context.Musteriler.AnyAsync(m => m.MusteriKodu == dto.MusteriKodu))
-                return BadRequest(new { hata = "Bu müşteri kodu zaten kullanımda." });
+            if (!_currentUserService.IsSystemAdmin)
+            {
+                return Forbid();
+            }
 
-            if (!string.IsNullOrEmpty(dto.VergiNo) && await _context.Musteriler.AnyAsync(m => m.VergiNo == dto.VergiNo))
-                return BadRequest(new { hata = "Bu VKN/TCKN ile kayıtlı başka bir müşteri var." });
+            var kodExists = await _context.Musteriler
+                .IgnoreQueryFilters()
+                .AnyAsync(m => m.MusteriKodu == dto.MusteriKodu);
+
+            if (kodExists)
+            {
+                return BadRequest(new { hata = "Bu musteri kodu zaten kullanimda." });
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.VergiNo))
+            {
+                var vergiExists = await _context.Musteriler
+                    .IgnoreQueryFilters()
+                    .AnyAsync(m => m.VergiNo == dto.VergiNo);
+
+                if (vergiExists)
+                {
+                    return BadRequest(new { hata = "Bu VKN/TCKN ile kayitli baska bir musteri var." });
+                }
+            }
 
             var yeni = new Musteri
             {
                 Id = IdGenerator.CreateV7(),
-                MusteriKodu = dto.MusteriKodu,
-                Unvan = dto.Unvan,
-                VergiNo = dto.VergiNo,
-                VergiDairesi = dto.VergiDairesi,
+                MusteriKodu = dto.MusteriKodu.Trim(),
+                Unvan = dto.Unvan.Trim(),
+                VergiNo = dto.VergiNo.Trim(),
+                VergiDairesi = dto.VergiDairesi.Trim(),
                 KimlikTuru = dto.KimlikTuru,
-                GsmNo = dto.GsmNo,
-                EPosta = dto.EPosta,
-                Il = dto.Il,
-                Ilce = dto.Ilce,
-                AdresDetay = dto.AdresDetay,
+                GsmNo = dto.GsmNo.Trim(),
+                EPosta = IdentityNormalizer.NormalizeEmail(dto.EPosta),
+                Il = dto.Il.Trim(),
+                Ilce = dto.Ilce.Trim(),
+                AdresDetay = dto.AdresDetay.Trim(),
                 PaketTipi = dto.PaketTipi,
                 AktifMi = dto.AktifMi,
                 KayitTarihi = DateTime.UtcNow
@@ -67,6 +92,7 @@ namespace AtlasWeb.Controllers
 
             _context.Musteriler.Add(yeni);
             await _context.SaveChangesAsync();
+            await TenantReferenceDataSeeder.EnsureDefaultsForCustomerAsync(_context, yeni.Id);
 
             return Ok(yeni);
         }
@@ -75,24 +101,58 @@ namespace AtlasWeb.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateMusteri(Guid id, [FromBody] MusteriDto dto)
         {
+            if (!_currentUserService.IsSystemAdmin)
+            {
+                return Forbid();
+            }
+
             if (id == AtlasDbContext.SystemMusteriId && !dto.AktifMi)
-                return BadRequest(new { hata = "⚠️ Sistem şirketi (AtlasWeb) pasif yapılamaz!" });
+            {
+                return BadRequest(new { hata = "Sistem sirketi pasif yapilamaz." });
+            }
 
-            var musteri = await _context.Musteriler.FindAsync(id);
-            if (musteri == null) return NotFound();
+            var musteri = await _context.Musteriler
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(m => m.Id == id);
 
-            musteri.Unvan = dto.Unvan;
-            musteri.MusteriKodu = dto.MusteriKodu;
-            musteri.VergiNo = dto.VergiNo;
-            musteri.VergiDairesi = dto.VergiDairesi;
+            if (musteri is null)
+            {
+                return NotFound();
+            }
+
+            var kodExists = await _context.Musteriler
+                .IgnoreQueryFilters()
+                .AnyAsync(m => m.MusteriKodu == dto.MusteriKodu && m.Id != id);
+
+            if (kodExists)
+            {
+                return BadRequest(new { hata = "Bu musteri kodu zaten kullanimda." });
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.VergiNo))
+            {
+                var vergiExists = await _context.Musteriler
+                    .IgnoreQueryFilters()
+                    .AnyAsync(m => m.VergiNo == dto.VergiNo && m.Id != id);
+
+                if (vergiExists)
+                {
+                    return BadRequest(new { hata = "Bu VKN/TCKN ile kayitli baska bir musteri var." });
+                }
+            }
+
+            musteri.Unvan = dto.Unvan.Trim();
+            musteri.MusteriKodu = dto.MusteriKodu.Trim();
+            musteri.VergiNo = dto.VergiNo.Trim();
+            musteri.VergiDairesi = dto.VergiDairesi.Trim();
             musteri.KimlikTuru = dto.KimlikTuru;
-            musteri.GsmNo = dto.GsmNo;
-            musteri.EPosta = dto.EPosta;
-            musteri.Il = dto.Il;
-            musteri.Ilce = dto.Ilce;
-            musteri.AdresDetay = dto.AdresDetay;
+            musteri.GsmNo = dto.GsmNo.Trim();
+            musteri.EPosta = IdentityNormalizer.NormalizeEmail(dto.EPosta);
+            musteri.Il = dto.Il.Trim();
+            musteri.Ilce = dto.Ilce.Trim();
+            musteri.AdresDetay = dto.AdresDetay.Trim();
             musteri.PaketTipi = dto.PaketTipi;
-            musteri.AktifMi = id == AtlasDbContext.SystemMusteriId ? true : dto.AktifMi;
+            musteri.AktifMi = id == AtlasDbContext.SystemMusteriId || dto.AktifMi;
 
             await _context.SaveChangesAsync();
             return Ok(musteri);
@@ -102,33 +162,111 @@ namespace AtlasWeb.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SoftDelete(Guid id)
         {
+            if (!_currentUserService.IsSystemAdmin)
+            {
+                return Forbid();
+            }
+
             if (id == AtlasDbContext.SystemMusteriId)
-                return BadRequest(new { hata = "⚠️ Sistem şirketi (AtlasWeb) pasife alınamaz!" });
+            {
+                return BadRequest(new { hata = "Sistem sirketi pasife alinamaz." });
+            }
 
-            // 🛡️ ExecuteUpdateAsync: Filtrelere takılmadan direkt veritabanı seviyesinde güncelleme yapar.
-            var affected = await _context.Musteriler
+            var musteri = await _context.Musteriler
                 .IgnoreQueryFilters()
-                .Where(m => m.Id == id)
-                .ExecuteUpdateAsync(s => s.SetProperty(p => p.AktifMi, false));
+                .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (affected == 0) return NotFound(new { hata = "Belirtilen müşteri bulunamadı." });
+            if (musteri is null)
+            {
+                return NotFound(new { hata = "Belirtilen musteri bulunamadi." });
+            }
 
-            return Ok(new { mesaj = "Müşteri pasif duruma getirildi." });
+            _context.Musteriler.Remove(musteri);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mesaj = "Musteri pasif duruma getirildi." });
         }
 
         [HttpDelete("{id}/hard")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> HardDelete(Guid id)
         {
+            if (!_currentUserService.IsSystemAdmin)
+            {
+                return Forbid();
+            }
+
             if (id == AtlasDbContext.SystemMusteriId)
-                return BadRequest(new { hata = "⚠️ Sistem şirketi (AtlasWeb) kalıcı olarak silinemez!" });
+            {
+                return BadRequest(new { hata = "Sistem sirketi kalici olarak silinemez." });
+            }
 
-            // ExecuteDeleteAsync veritabanına direkt DELETE FROM sorgusu atar, EF Core ChangeTracker'ı atlar (Kalıcı Silme).
-            var silinenKayit = await _context.Musteriler.Where(m => m.Id == id).ExecuteDeleteAsync();
-            
-            if (silinenKayit == 0) return NotFound(new { hata = "Silinecek müşteri bulunamadı." });
+            var relatedCounts = new Dictionary<string, int>
+            {
+                ["kullanicilar"] = await _context.Kullanicilar.IgnoreQueryFilters().CountAsync(x => x.MusteriId == id),
+                ["stoklar"] = await _context.Stoklar.IgnoreQueryFilters().CountAsync(x => x.MusteriId == id),
+                ["cariKartlar"] = await _context.CariKartlar.IgnoreQueryFilters().CountAsync(x => x.MusteriId == id),
+                ["cariTipler"] = await _context.CariTipler.IgnoreQueryFilters().CountAsync(x => x.MusteriId == id),
+                ["birimler"] = await _context.Birimler.IgnoreQueryFilters().CountAsync(x => x.MusteriId == id),
+                ["faturalar"] = await _context.Faturalar.IgnoreQueryFilters().CountAsync(x => x.MusteriId == id)
+            };
 
-            return Ok(new { mesaj = "Müşteri kaydı veritabanından kalıcı olarak (Hard Delete) silindi." });
+            if (relatedCounts.Any(item => item.Value > 0))
+            {
+                return Conflict(new
+                {
+                    hata = "Musteri iliskili kayitlar bulundugu icin kalici olarak silinemiyor.",
+                    iliskiliKayitlar = relatedCounts.Where(item => item.Value > 0)
+                });
+            }
+
+            var silinenKayit = await _context.Musteriler
+                .IgnoreQueryFilters()
+                .Where(m => m.Id == id)
+                .ExecuteDeleteAsync();
+
+            if (silinenKayit == 0)
+            {
+                return NotFound(new { hata = "Silinecek musteri bulunamadi." });
+            }
+
+            return Ok(new { mesaj = "Musteri kalici olarak silindi." });
+        }
+
+        [HttpPost("{id:guid}/varsayilan-tanimlar")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> EnsureDefaultDefinitions(Guid id)
+        {
+            if (!_currentUserService.IsSystemAdmin)
+            {
+                return Forbid();
+            }
+
+            var musteriVarMi = await _context.Musteriler
+                .IgnoreQueryFilters()
+                .AnyAsync(m => m.Id == id && m.AktifMi);
+
+            if (!musteriVarMi)
+            {
+                return NotFound(new { hata = "Musteri bulunamadi." });
+            }
+
+            await TenantReferenceDataSeeder.EnsureDefaultsForCustomerAsync(_context, id);
+
+            var birimSayisi = await _context.Birimler
+                .IgnoreQueryFilters()
+                .CountAsync(b => b.MusteriId == id && b.AktifMi);
+
+            var cariTipSayisi = await _context.CariTipler
+                .IgnoreQueryFilters()
+                .CountAsync(ct => ct.MusteriId == id && ct.AktifMi);
+
+            return Ok(new
+            {
+                mesaj = "Varsayilan birim ve cari tip tanimlari guncellendi.",
+                birimSayisi,
+                cariTipSayisi
+            });
         }
     }
-}
+}

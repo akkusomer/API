@@ -7,11 +7,33 @@ namespace AtlasWeb.Services
         Task<AuthResult> LoginAsync(LoginDto dto, string ipAddress, string? deviceInfo = null);
         Task<AuthResult> RefreshAsync(string refreshToken, string ipAddress);
         Task LogoutAsync(Guid userId);
+        Task LogoutByRefreshTokenAsync(string refreshToken);
+        Task<PasswordResetRequestStatus> RequestPasswordResetAsync(ForgotPasswordRequestDto dto, string resetPageUrl, string ipAddress);
+        Task<PasswordResetStatus> ResetPasswordAsync(ResetPasswordDto dto, string ipAddress);
     }
 
-    // ── Result Types ──────────────────────────────────────────────────────────────
+    public enum AuthStatus
+    {
+        Success,
+        Invalid,
+        Locked,
+        Error
+    }
 
-    public enum AuthStatus { Success, Invalid, Locked, Error }
+    public enum PasswordResetRequestStatus
+    {
+        Accepted,
+        ServiceUnavailable,
+        Error
+    }
+
+    public enum PasswordResetStatus
+    {
+        Success,
+        Invalid,
+        Expired,
+        Error
+    }
 
     public sealed class AuthResult
     {

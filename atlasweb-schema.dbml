@@ -1,0 +1,536 @@
+Enum AuditSource {
+  Web
+  System
+  Security
+}
+
+Enum KimlikTuruEnum {
+  VKN
+  TCKN
+}
+
+Enum PaketTipiEnum {
+  Standart
+  Premium
+  Kurumsal
+}
+
+Enum FaturaTipiEnum {
+  Bireysel
+  Kurumsal
+  Ihracat
+}
+
+Enum KasaIslemTipi {
+  Tahsilat
+  Odeme
+}
+
+Table Musteriler {
+  Id uuid [pk]
+  MusteriKodu text [not null]
+  Unvan text [not null]
+  VergiNo text [not null]
+  VergiDairesi text [not null]
+  KimlikTuru KimlikTuruEnum [not null]
+  GsmNo text [not null]
+  EPosta text [not null]
+  Il text [not null]
+  Ilce text [not null]
+  AdresDetay text [not null]
+  PaketTipi PaketTipiEnum [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+
+  Indexes {
+    MusteriKodu [unique, name: 'IX_Musteriler_MusteriKodu_Unique']
+  }
+}
+
+Table Kullanicilar {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  Ad text [not null]
+  Soyad text [not null]
+  EPosta text [not null]
+  Telefon text
+  SifreHash text [not null]
+  Rol text [not null]
+  FailedLoginCount int [not null]
+  LockoutEnd timestamp
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    EPosta [unique, name: 'IX_Kullanicilar_EPosta_Unique']
+  }
+}
+
+Table KullaniciTokenler {
+  Id uuid [pk]
+  KullaniciId uuid [not null]
+  RefreshTokenHash text [not null]
+  ExpiryTime timestamp [not null]
+  DeviceInfo text
+  CreatedAt timestamp [not null]
+
+  Indexes {
+    RefreshTokenHash [unique, name: 'IX_KullaniciTokenler_RefreshTokenHash_Unique']
+    (KullaniciId, ExpiryTime) [name: 'IX_KullaniciTokenler_KullaniciId_Expiry']
+  }
+}
+
+Table KullaniciSifreSifirlamaTokenler {
+  Id uuid [pk]
+  KullaniciId uuid [not null]
+  TokenHash text [not null]
+  ExpiryTime timestamp [not null]
+  CreatedAt timestamp [not null]
+  ConsumedAt timestamp
+  RequestedIpAddress text
+
+  Indexes {
+    TokenHash [unique, name: 'IX_KullaniciSifreSifirlamaTokenler_TokenHash_Unique']
+    (KullaniciId, ExpiryTime) [name: 'IX_KullaniciSifreSifirlamaTokenler_KullaniciId_Expiry']
+  }
+}
+
+Table Birimler {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  Ad text [not null]
+  Sembol text [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    (MusteriId, Ad) [unique, name: 'IX_Birimler_MusteriId_Ad_Unique']
+    (MusteriId, Sembol) [unique, name: 'IX_Birimler_MusteriId_Sembol_Unique']
+  }
+}
+
+Table CariTipler {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  Adi varchar(50) [not null]
+  Aciklama varchar(200)
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    (MusteriId, Adi) [unique, name: 'IX_CariTipler_MusteriId_Adi_Unique']
+  }
+}
+
+Table CariKartlar {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  CariTipId uuid [not null]
+  Unvan varchar(150)
+  AdiSoyadi varchar(100)
+  FaturaTipi FaturaTipiEnum [not null]
+  GrupKodu varchar(20)
+  OzelKodu varchar(20)
+  Telefon varchar(20)
+  Telefon2 varchar(20)
+  Gsm varchar(20)
+  Adres varchar(250)
+  HksSifatId int
+  Il varchar(100)
+  Ilce varchar(100)
+  Belde varchar(100)
+  VergiDairesi varchar(50)
+  VTCK_No varchar(11)
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    (MusteriId, VTCK_No) [unique, name: 'IX_CariKartlar_MusteriId_VTCK_No_Unique']
+  }
+}
+
+Table Stoklar {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  StokKodu text [not null]
+  StokAdi text [not null]
+  YedekAdi text
+  BirimId uuid [not null]
+  HksUrunId int
+  HksUretimSekliId int
+  HksUrunCinsiId int
+  HksNitelik varchar(16)
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    (MusteriId, StokKodu) [unique, name: 'IX_Stoklar_MusteriId_StokKodu_Unique']
+  }
+}
+
+Table Faturalar {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  FaturaNo varchar(30) [not null]
+  CariKartId uuid
+  FaturaTarihi timestamp [not null]
+  Aciklama varchar(300)
+  Tutar decimal(18,2) [not null]
+  TahsilEdilenTutar decimal(18,2) [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    (MusteriId, FaturaNo) [unique, name: 'IX_Faturalar_MusteriId_FaturaNo_Unique']
+  }
+}
+
+Table FaturaDetaylari {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  FaturaId uuid [not null]
+  StokId uuid [not null]
+  Miktar decimal(18,3) [not null]
+  BirimFiyat decimal(18,2) [not null]
+  SatirToplami decimal(18,2) [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+}
+
+Table KasaFisleri {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  KasaAdi varchar(100) [not null]
+  BelgeKodu varchar(10) [not null]
+  BelgeNo int [not null]
+  IslemTipi KasaIslemTipi [not null]
+  CariKartId uuid
+  Tarih timestamp [not null]
+  OzelKodu varchar(50)
+  HareketTipi varchar(50) [not null]
+  Aciklama1 varchar(200)
+  Aciklama2 varchar(200)
+  Pos varchar(50)
+  Tutar decimal(18,2) [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    (MusteriId, BelgeNo) [unique, name: 'IX_KasaFisleri_MusteriId_BelgeNo_Unique']
+  }
+}
+
+Table AuditLogs {
+  Id uuid [pk]
+  EntityName text [not null]
+  EntityId text [not null]
+  Action text [not null]
+  UserId text
+  Timestamp timestamp [not null]
+}
+
+Table ErrorLogs {
+  Id int [pk, increment]
+  HataMesaji text [not null]
+  HataDetayi text
+  IstekYolu text
+  KullaniciId text
+  Tarih timestamp [not null]
+}
+
+Table HksAyarlari {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  KullaniciAdi text [not null]
+  PasswordCipherText text [not null]
+  ServicePasswordCipherText text [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    MusteriId [unique, name: 'IX_HksAyarlari_MusteriId_Unique']
+  }
+}
+
+Table HksSifatlar {
+  Id uuid [pk]
+  HksSifatId int [not null]
+  Ad text [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    HksSifatId [unique, name: 'IX_HksSifatlar_HksSifatId_Unique']
+  }
+}
+
+Table HksIller {
+  Id uuid [pk]
+  HksIlId int [not null]
+  Ad text [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    HksIlId [unique, name: 'IX_HksIller_HksIlId_Unique']
+  }
+}
+
+Table HksIlceler {
+  Id uuid [pk]
+  HksIlceId int [not null]
+  HksIlId int [not null]
+  Ad text [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    HksIlceId [unique, name: 'IX_HksIlceler_HksIlceId_Unique']
+  }
+}
+
+Table HksBeldeler {
+  Id uuid [pk]
+  HksBeldeId int [not null]
+  HksIlceId int [not null]
+  Ad text [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    HksBeldeId [unique, name: 'IX_HksBeldeler_HksBeldeId_Unique']
+  }
+}
+
+Table HksUrunler {
+  Id uuid [pk]
+  HksUrunId int [not null]
+  Ad text [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    HksUrunId [unique, name: 'IX_HksUrunler_HksUrunId_Unique']
+  }
+}
+
+Table HksUrunBirimleri {
+  Id uuid [pk]
+  HksUrunBirimId int [not null]
+  Ad text [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    HksUrunBirimId [unique, name: 'IX_HksUrunBirimleri_HksUrunBirimId_Unique']
+  }
+}
+
+Table HksIsletmeTurleri {
+  Id uuid [pk]
+  HksIsletmeTuruId int [not null]
+  Ad text [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    HksIsletmeTuruId [unique, name: 'IX_HksIsletmeTurleri_HksIsletmeTuruId_Unique']
+  }
+}
+
+Table HksUretimSekilleri {
+  Id uuid [pk]
+  HksUretimSekliId int [not null]
+  Ad text [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    HksUretimSekliId [unique, name: 'IX_HksUretimSekilleri_HksUretimSekliId_Unique']
+  }
+}
+
+Table HksUrunCinsleri {
+  Id uuid [pk]
+  HksUrunCinsiId int [not null]
+  HksUrunId int [not null]
+  HksUretimSekliId int
+  Ad text [not null]
+  UrunKodu text
+  IthalMi boolean
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    HksUrunCinsiId [unique, name: 'IX_HksUrunCinsleri_HksUrunCinsiId_Unique']
+  }
+}
+
+Table HksReferansKunyeKayitlari {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  Durum text [not null]
+  ProgressPercent int [not null]
+  ProgressLabel text
+  Hata text
+  BaslangicTarihi timestamp
+  BitisTarihi timestamp
+  IslemKodu text
+  Mesaj text
+  KayitSayisi int [not null]
+  ReferansKunyelerJson text [not null]
+  AktifMi boolean [not null]
+  KayitTarihi timestamp [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamp
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamp
+  SilenKullanici text
+  Source AuditSource [not null]
+
+  Indexes {
+    MusteriId [unique, name: 'IX_HksReferansKunyeKayitlari_MusteriId_Unique']
+  }
+}
+
+Table __EFMigrationsHistory {
+  MigrationId varchar(150) [pk]
+  ProductVersion varchar(32) [not null]
+}
+
+Ref: Kullanicilar.MusteriId > Musteriler.Id
+Ref: Birimler.MusteriId > Musteriler.Id
+Ref: CariTipler.MusteriId > Musteriler.Id
+Ref: CariKartlar.MusteriId > Musteriler.Id
+Ref: CariKartlar.CariTipId > CariTipler.Id
+Ref: CariKartlar.HksSifatId > HksSifatlar.HksSifatId
+Ref: Stoklar.MusteriId > Musteriler.Id
+Ref: Stoklar.BirimId > Birimler.Id
+Ref: Faturalar.MusteriId > Musteriler.Id
+Ref: Faturalar.CariKartId > CariKartlar.Id
+Ref: FaturaDetaylari.MusteriId > Musteriler.Id
+Ref: FaturaDetaylari.FaturaId > Faturalar.Id
+Ref: FaturaDetaylari.StokId > Stoklar.Id
+Ref: KasaFisleri.MusteriId > Musteriler.Id
+Ref: KasaFisleri.CariKartId > CariKartlar.Id
+Ref: HksAyarlari.MusteriId > Musteriler.Id
+Ref: HksReferansKunyeKayitlari.MusteriId > Musteriler.Id
+Ref: KullaniciTokenler.KullaniciId > Kullanicilar.Id
+Ref: KullaniciSifreSifirlamaTokenler.KullaniciId > Kullanicilar.Id
+
+// HKS sözlük tabloları için mantıksal ilişkiler
+Ref: HksIlceler.HksIlId > HksIller.HksIlId
+Ref: HksBeldeler.HksIlceId > HksIlceler.HksIlceId
+Ref: HksUrunCinsleri.HksUrunId > HksUrunler.HksUrunId
+Ref: HksUrunCinsleri.HksUretimSekliId > HksUretimSekilleri.HksUretimSekliId
+Ref: Stoklar.HksUrunId > HksUrunler.HksUrunId
+Ref: Stoklar.HksUretimSekliId > HksUretimSekilleri.HksUretimSekliId
+Ref: Stoklar.HksUrunCinsiId > HksUrunCinsleri.HksUrunCinsiId

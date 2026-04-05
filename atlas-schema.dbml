@@ -1,0 +1,273 @@
+// AtlasWeb database schema for dbdiagram.io
+// Not: MusteriId alanlari uygulamadaki tenant bagini gosterir.
+// Bunlarin tamami mevcut veritabaninda fiziksel foreign key olarak tanimli degil olabilir.
+
+Enum KimlikTuruEnum {
+  VKN
+  TCKN
+}
+
+Enum PaketTipiEnum {
+  Standart
+  Premium
+  Kurumsal
+}
+
+Enum FaturaTipiEnum {
+  Bireysel
+  Kurumsal
+  Ihracat
+}
+
+Enum AuditSource {
+  Web
+  System
+  Security
+}
+
+Table Musteriler {
+  Id uuid [pk]
+  MusteriKodu text [not null, unique]
+  Unvan text [not null]
+  VergiNo text [not null]
+  VergiDairesi text [not null]
+  KimlikTuru KimlikTuruEnum [not null, default: 'VKN']
+  GsmNo text [not null]
+  EPosta text [not null]
+  Il text [not null]
+  Ilce text [not null]
+  AdresDetay text [not null]
+  PaketTipi PaketTipiEnum [not null, default: 'Standart']
+  AktifMi bool [not null, default: true]
+  KayitTarihi timestamptz [not null]
+}
+
+Table Kullanicilar {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  Ad text [not null]
+  Soyad text [not null]
+  EPosta text [not null, unique]
+  Telefon text
+  SifreHash text [not null]
+  Rol text [not null, default: 'User']
+  FailedLoginCount int [not null, default: 0]
+  LockoutEnd timestamptz
+  AktifMi bool [not null, default: true]
+  KayitTarihi timestamptz [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamptz
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamptz
+  SilenKullanici text
+  Source AuditSource [not null, default: 'Web']
+
+  Indexes {
+    (MusteriId, AktifMi, KayitTarihi) [name: 'IX_Kullanici_SaaS_Performance']
+  }
+}
+
+Table Birimler {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  Ad text [not null]
+  Sembol text [not null]
+  AktifMi bool [not null, default: true]
+  KayitTarihi timestamptz [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamptz
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamptz
+  SilenKullanici text
+  Source AuditSource [not null, default: 'Web']
+
+  Indexes {
+    (MusteriId, Ad) [unique, name: 'IX_Birimler_MusteriId_Ad_Unique']
+    (MusteriId, Sembol) [unique, name: 'IX_Birimler_MusteriId_Sembol_Unique']
+    (MusteriId, AktifMi, KayitTarihi) [name: 'IX_Birim_SaaS_Performance']
+  }
+}
+
+Table Stoklar {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  StokKodu text [not null]
+  StokAdi text [not null]
+  YedekAdi text
+  BirimId uuid [not null]
+  AktifMi bool [not null, default: true]
+  KayitTarihi timestamptz [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamptz
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamptz
+  SilenKullanici text
+  Source AuditSource [not null, default: 'Web']
+
+  Indexes {
+    BirimId
+    (MusteriId, StokKodu) [unique, name: 'IX_Stoklar_MusteriId_StokKodu_Unique']
+    (MusteriId, AktifMi, KayitTarihi) [name: 'IX_Stok_SaaS_Performance']
+  }
+}
+
+Table CariTipler {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  Adi varchar(50) [not null]
+  Aciklama varchar(200)
+  AktifMi bool [not null, default: true]
+  KayitTarihi timestamptz [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamptz
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamptz
+  SilenKullanici text
+  Source AuditSource [not null, default: 'Web']
+
+  Indexes {
+    (MusteriId, Adi) [unique, name: 'IX_CariTipler_MusteriId_Adi_Unique']
+    (MusteriId, AktifMi, KayitTarihi) [name: 'IX_CariTip_SaaS_Performance']
+  }
+}
+
+Table CariKartlar {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  CariTipId uuid [not null]
+  Unvan varchar(150)
+  AdiSoyadi varchar(100)
+  FaturaTipi FaturaTipiEnum [not null, default: 'Bireysel']
+  GrupKodu varchar(20)
+  OzelKodu varchar(20)
+  Telefon varchar(20)
+  Telefon2 varchar(20)
+  Gsm varchar(20)
+  Adres varchar(250)
+  VergiDairesi varchar(50)
+  VTCK_No varchar(11)
+  AktifMi bool [not null, default: true]
+  KayitTarihi timestamptz [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamptz
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamptz
+  SilenKullanici text
+  Source AuditSource [not null, default: 'Web']
+
+  Indexes {
+    CariTipId
+    (MusteriId, VTCK_No) [unique, name: 'IX_CariKartlar_MusteriId_VTCK_No_Unique', note: 'Only when VTCK_No is not null']
+    (MusteriId, AktifMi, KayitTarihi) [name: 'IX_CariKart_SaaS_Performance']
+  }
+}
+
+Table Faturalar {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  FaturaNo varchar(30) [not null]
+  CariKartId uuid
+  FaturaTarihi timestamptz [not null]
+  Aciklama varchar(300)
+  Tutar decimal(18,2) [not null]
+  AktifMi bool [not null, default: true]
+  KayitTarihi timestamptz [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamptz
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamptz
+  SilenKullanici text
+  Source AuditSource [not null, default: 'Web']
+
+  Indexes {
+    CariKartId
+    (MusteriId, FaturaNo) [unique, name: 'IX_Faturalar_MusteriId_FaturaNo_Unique']
+    (MusteriId, AktifMi, KayitTarihi) [name: 'IX_Fatura_SaaS_Performance']
+  }
+}
+
+Table FaturaDetaylari {
+  Id uuid [pk]
+  MusteriId uuid [not null]
+  FaturaId uuid [not null]
+  StokId uuid [not null]
+  Miktar decimal(18,3) [not null]
+  BirimFiyat decimal(18,2) [not null]
+  SatirToplami decimal(18,2) [not null]
+  AktifMi bool [not null, default: true]
+  KayitTarihi timestamptz [not null]
+  OlusturanKullanici text
+  GuncellemeTarihi timestamptz
+  GuncelleyenKullanici text
+  SilinmeTarihi timestamptz
+  SilenKullanici text
+  Source AuditSource [not null, default: 'Web']
+
+  Indexes {
+    FaturaId
+    StokId
+    (MusteriId, AktifMi, KayitTarihi) [name: 'IX_FaturaDetay_SaaS_Performance']
+  }
+}
+
+Table KullaniciTokenler {
+  Id uuid [pk]
+  KullaniciId uuid [not null]
+  RefreshTokenHash text [not null, unique]
+  ExpiryTime timestamptz [not null]
+  DeviceInfo text
+  CreatedAt timestamptz [not null]
+
+  Indexes {
+    (KullaniciId, ExpiryTime) [name: 'IX_KullaniciTokenler_KullaniciId_Expiry']
+  }
+}
+
+Table KullaniciSifreSifirlamaTokenler {
+  Id uuid [pk]
+  KullaniciId uuid [not null]
+  TokenHash text [not null, unique]
+  ExpiryTime timestamptz [not null]
+  CreatedAt timestamptz [not null]
+  ConsumedAt timestamptz
+  RequestedIpAddress text
+
+  Indexes {
+    (KullaniciId, ExpiryTime) [name: 'IX_KullaniciSifreSifirlamaTokenler_KullaniciId_Expiry']
+  }
+}
+
+Table AuditLogs {
+  Id uuid [pk]
+  EntityName text [not null]
+  EntityId text [not null]
+  Action text [not null]
+  UserId text
+  Timestamp timestamptz [not null]
+}
+
+Table ErrorLogs {
+  Id int [pk, increment]
+  HataMesaji text [not null]
+  HataDetayi text
+  IstekYolu text
+  KullaniciId text
+  Tarih timestamptz [not null]
+}
+
+Ref: Stoklar.BirimId > Birimler.Id
+Ref: CariKartlar.CariTipId > CariTipler.Id
+Ref: Faturalar.CariKartId > CariKartlar.Id
+Ref: FaturaDetaylari.FaturaId > Faturalar.Id
+Ref: FaturaDetaylari.StokId > Stoklar.Id
+Ref: KullaniciTokenler.KullaniciId > Kullanicilar.Id
+Ref: KullaniciSifreSifirlamaTokenler.KullaniciId > Kullanicilar.Id
+
+// Logical tenant refs
+Ref: Kullanicilar.MusteriId > Musteriler.Id
+Ref: Birimler.MusteriId > Musteriler.Id
+Ref: Stoklar.MusteriId > Musteriler.Id
+Ref: CariTipler.MusteriId > Musteriler.Id
+Ref: CariKartlar.MusteriId > Musteriler.Id
+Ref: Faturalar.MusteriId > Musteriler.Id
+Ref: FaturaDetaylari.MusteriId > Musteriler.Id

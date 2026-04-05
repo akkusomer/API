@@ -8,6 +8,11 @@ namespace AtlasWeb.Models
         public string StokKodu { get; set; } = string.Empty;
         public string StokAdi { get; set; } = string.Empty;
         public string? YedekAdi { get; set; }
+        public int? HksUrunId { get; set; }
+        public int? HksUretimSekliId { get; set; }
+        public int? HksUrunCinsiId { get; set; }
+        [MaxLength(16)]
+        public string? HksNitelik { get; set; }
         
         public Guid BirimId { get; set; }
         

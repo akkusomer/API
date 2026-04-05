@@ -73,6 +73,9 @@ namespace AtlasWeb.Migrations
                     b.Property<DateTime>("KayitTarihi")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("MusteriId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("OlusturanKullanici")
                         .HasColumnType("text");
 
@@ -90,6 +93,17 @@ namespace AtlasWeb.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MusteriId", "Ad")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Birimler_MusteriId_Ad_Unique");
+
+                    b.HasIndex("MusteriId", "Sembol")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Birimler_MusteriId_Sembol_Unique");
+
+                    b.HasIndex("MusteriId", "AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_Birim_SaaS_Performance");
 
                     b.ToTable("Birimler");
                 });
@@ -111,8 +125,15 @@ namespace AtlasWeb.Migrations
                     b.Property<bool>("AktifMi")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Belde")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<Guid>("CariTipId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DogumTarihi")
+                        .HasColumnType("date");
 
                     b.Property<int>("FaturaTipi")
                         .HasColumnType("integer");
@@ -130,6 +151,36 @@ namespace AtlasWeb.Migrations
 
                     b.Property<string>("GuncelleyenKullanici")
                         .HasColumnType("text");
+
+                    b.Property<string>("HalIciIsyeriAdi")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<int?>("HksBeldeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("HksHalIciIsyeriId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("HksIlId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("HksIlceId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("HksIsletmeTuruId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("HksSifatId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Il")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Ilce")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("KayitTarihi")
                         .HasColumnType("timestamp with time zone");
@@ -177,6 +228,11 @@ namespace AtlasWeb.Migrations
 
                     b.HasIndex("CariTipId");
 
+                    b.HasIndex("MusteriId", "VTCK_No")
+                        .IsUnique()
+                        .HasDatabaseName("IX_CariKartlar_MusteriId_VTCK_No_Unique")
+                        .HasFilter("\"VTCK_No\" IS NOT NULL");
+
                     b.HasIndex("MusteriId", "AktifMi", "KayitTarihi")
                         .HasDatabaseName("IX_CariKart_SaaS_Performance");
 
@@ -210,6 +266,9 @@ namespace AtlasWeb.Migrations
                     b.Property<DateTime>("KayitTarihi")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("MusteriId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("OlusturanKullanici")
                         .HasColumnType("text");
 
@@ -223,6 +282,13 @@ namespace AtlasWeb.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MusteriId", "Adi")
+                        .IsUnique()
+                        .HasDatabaseName("IX_CariTipler_MusteriId_Adi_Unique");
+
+                    b.HasIndex("MusteriId", "AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_CariTip_SaaS_Performance");
 
                     b.ToTable("CariTipler");
                 });
@@ -262,12 +328,27 @@ namespace AtlasWeb.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Aciklama")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
                     b.Property<bool>("AktifMi")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("AlisKunye")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<Guid?>("CariKartId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("FaturaNo")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime>("FaturaTarihi")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("GuncellemeTarihi")
                         .HasColumnType("timestamp with time zone");
@@ -293,10 +374,17 @@ namespace AtlasWeb.Migrations
                     b.Property<int>("Source")
                         .HasColumnType("integer");
 
+                    b.Property<decimal>("TahsilEdilenTutar")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
                     b.Property<decimal>("Tutar")
-                        .HasColumnType("numeric");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CariKartId");
 
                     b.HasIndex("MusteriId", "FaturaNo")
                         .IsUnique()
@@ -306,6 +394,764 @@ namespace AtlasWeb.Migrations
                         .HasDatabaseName("IX_Fatura_SaaS_Performance");
 
                     b.ToTable("Faturalar");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.FaturaDetay", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("AlisKunye")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<decimal>("BirimFiyat")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<Guid>("FaturaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Miktar")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.Property<Guid>("MusteriId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("SatirToplami")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("SatisKunye")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("StokId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FaturaId");
+
+                    b.HasIndex("StokId");
+
+                    b.HasIndex("MusteriId", "AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_FaturaDetay_SaaS_Performance");
+
+                    b.ToTable("FaturaDetaylari");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.HksAyar", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("KullaniciAdi")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("MusteriId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PasswordCipherText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ServicePasswordCipherText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MusteriId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HksAyarlari_MusteriId_Unique");
+
+                    b.HasIndex("MusteriId", "AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_HksAyar_SaaS_Performance");
+
+                    b.ToTable("HksAyarlari");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.HksBelde", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Ad")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<int>("HksBeldeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HksIlceId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HksBeldeId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HksBeldeler_HksBeldeId_Unique");
+
+                    b.HasIndex("HksIlceId", "AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_HksBeldeler_HksIlceId_AktifMi_KayitTarihi");
+
+                    b.ToTable("HksBeldeler");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.HksIl", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Ad")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<int>("HksIlId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HksIlId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HksIller_HksIlId_Unique");
+
+                    b.HasIndex("AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_HksIller_AktifMi_KayitTarihi");
+
+                    b.ToTable("HksIller");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.HksIlce", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Ad")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<int>("HksIlId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HksIlceId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HksIlceId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HksIlceler_HksIlceId_Unique");
+
+                    b.HasIndex("HksIlId", "AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_HksIlceler_HksIlId_AktifMi_KayitTarihi");
+
+                    b.ToTable("HksIlceler");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.HksIsletmeTuru", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Ad")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<int>("HksIsletmeTuruId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HksIsletmeTuruId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HksIsletmeTurleri_HksIsletmeTuruId_Unique");
+
+                    b.HasIndex("AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_HksIsletmeTurleri_AktifMi_KayitTarihi");
+
+                    b.ToTable("HksIsletmeTurleri");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.HksReferansKunyeKayit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("BaslangicTarihi")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("BitisTarihi")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Durum")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Hata")
+                        .HasColumnType("text");
+
+                    b.Property<string>("IslemKodu")
+                        .HasColumnType("text");
+
+                    b.Property<int>("KayitSayisi")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Mesaj")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("MusteriId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProgressLabel")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ProgressPercent")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReferansKunyelerJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MusteriId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HksReferansKunyeKayitlari_MusteriId_Unique");
+
+                    b.HasIndex("MusteriId", "AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_HksReferansKunyeKayit_SaaS_Performance");
+
+                    b.ToTable("HksReferansKunyeKayitlari");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.HksSifat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Ad")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<int>("HksSifatId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HksSifatId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HksSifatlar_HksSifatId_Unique");
+
+                    b.HasIndex("AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_HksSifatlar_AktifMi_KayitTarihi");
+
+                    b.ToTable("HksSifatlar");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.HksUretimSekli", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Ad")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<int>("HksUretimSekliId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HksUretimSekliId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HksUretimSekilleri_HksUretimSekliId_Unique");
+
+                    b.HasIndex("AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_HksUretimSekilleri_AktifMi_KayitTarihi");
+
+                    b.ToTable("HksUretimSekilleri");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.HksUrun", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Ad")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<int>("HksUrunId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HksUrunId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HksUrunler_HksUrunId_Unique");
+
+                    b.HasIndex("AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_HksUrunler_AktifMi_KayitTarihi");
+
+                    b.ToTable("HksUrunler");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.HksUrunBirim", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Ad")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<int>("HksUrunBirimId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HksUrunBirimId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HksUrunBirimleri_HksUrunBirimId_Unique");
+
+                    b.HasIndex("AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_HksUrunBirimleri_AktifMi_KayitTarihi");
+
+                    b.ToTable("HksUrunBirimleri");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.HksUrunCinsi", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Ad")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("HksUretimSekliId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HksUrunCinsiId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HksUrunId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool?>("IthalMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UrunKodu")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HksUrunCinsiId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HksUrunCinsleri_HksUrunCinsiId_Unique");
+
+                    b.HasIndex("HksUrunId", "AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_HksUrunCinsleri_HksUrunId_AktifMi_KayitTarihi");
+
+                    b.ToTable("HksUrunCinsleri");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.KasaFis", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Aciklama1")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Aciklama2")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("AktifMi")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("BelgeKodu")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<int>("BelgeNo")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("CariKartId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("GuncellemeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuncelleyenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("HareketTipi")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("IslemTipi")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("KasaAdi")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MusteriId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OlusturanKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OzelKodu")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Pos")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("SilenKullanici")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SilinmeTarihi")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Tarih")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Tutar")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CariKartId");
+
+                    b.HasIndex("MusteriId", "BelgeNo")
+                        .IsUnique()
+                        .HasDatabaseName("IX_KasaFisleri_MusteriId_BelgeNo_Unique");
+
+                    b.HasIndex("MusteriId", "AktifMi", "KayitTarihi")
+                        .HasDatabaseName("IX_KasaFis_SaaS_Performance");
+
+                    b.ToTable("KasaFisleri");
                 });
 
             modelBuilder.Entity("AtlasWeb.Models.Kullanici", b =>
@@ -367,12 +1213,56 @@ namespace AtlasWeb.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Telefon")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("EPosta")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Kullanicilar_EPosta_Unique");
 
                     b.HasIndex("MusteriId", "AktifMi", "KayitTarihi")
                         .HasDatabaseName("IX_Kullanici_SaaS_Performance");
 
                     b.ToTable("Kullanicilar");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.KullaniciSifreSifirlamaToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ConsumedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiryTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("KullaniciId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RequestedIpAddress")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("IX_KullaniciSifreSifirlamaTokenler_TokenHash_Unique");
+
+                    b.HasIndex("KullaniciId", "ExpiryTime")
+                        .HasDatabaseName("IX_KullaniciSifreSifirlamaTokenler_KullaniciId_Expiry");
+
+                    b.ToTable("KullaniciSifreSifirlamaTokenler");
                 });
 
             modelBuilder.Entity("AtlasWeb.Models.KullaniciToken", b =>
@@ -465,24 +1355,28 @@ namespace AtlasWeb.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MusteriKodu")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Musteriler_MusteriKodu_Unique");
+
                     b.ToTable("Musteriler");
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("e06c1341-3b74-4b8c-8c6e-984bb646e297"),
-                            AdresDetay = "SİSTEM MERKEZİ",
+                            AdresDetay = "SISTEM MERKEZI",
                             AktifMi = true,
-                            EPosta = "admin@atlasweb.com",
+                            EPosta = "admin@atlasweb.local",
                             GsmNo = "0000000000",
                             Il = "ANKARA",
-                            Ilce = "ÇANKAYA",
+                            Ilce = "CANKAYA",
                             KayitTarihi = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             KimlikTuru = 0,
                             MusteriKodu = "ATLASWEB",
                             PaketTipi = 2,
-                            Unvan = "AtlasWeb Sistem Yönetimi",
-                            VergiDairesi = "SİSTEM",
+                            Unvan = "AtlasWeb Sistem Yonetimi",
+                            VergiDairesi = "SISTEM",
                             VergiNo = "00000000000"
                         });
                 });
@@ -504,6 +1398,19 @@ namespace AtlasWeb.Migrations
 
                     b.Property<string>("GuncelleyenKullanici")
                         .HasColumnType("text");
+
+                    b.Property<string>("HksNitelik")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<int?>("HksUretimSekliId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("HksUrunCinsiId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("HksUrunId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("KayitTarihi")
                         .HasColumnType("timestamp with time zone");
@@ -538,6 +1445,10 @@ namespace AtlasWeb.Migrations
 
                     b.HasIndex("BirimId");
 
+                    b.HasIndex("MusteriId", "StokKodu")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Stoklar_MusteriId_StokKodu_Unique");
+
                     b.HasIndex("MusteriId", "AktifMi", "KayitTarihi")
                         .HasDatabaseName("IX_Stok_SaaS_Performance");
 
@@ -555,6 +1466,55 @@ namespace AtlasWeb.Migrations
                     b.Navigation("CariTip");
                 });
 
+            modelBuilder.Entity("AtlasWeb.Models.Fatura", b =>
+                {
+                    b.HasOne("AtlasWeb.Models.CariKart", "CariKart")
+                        .WithMany()
+                        .HasForeignKey("CariKartId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CariKart");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.FaturaDetay", b =>
+                {
+                    b.HasOne("AtlasWeb.Models.Fatura", "Fatura")
+                        .WithMany("Detaylar")
+                        .HasForeignKey("FaturaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AtlasWeb.Models.Stok", "Stok")
+                        .WithMany()
+                        .HasForeignKey("StokId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Fatura");
+
+                    b.Navigation("Stok");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.KasaFis", b =>
+                {
+                    b.HasOne("AtlasWeb.Models.CariKart", "CariKart")
+                        .WithMany()
+                        .HasForeignKey("CariKartId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CariKart");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.KullaniciSifreSifirlamaToken", b =>
+                {
+                    b.HasOne("AtlasWeb.Models.Kullanici", "Kullanici")
+                        .WithMany("SifreSifirlamaTokenleri")
+                        .HasForeignKey("KullaniciId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Kullanici");
+                });
+
             modelBuilder.Entity("AtlasWeb.Models.KullaniciToken", b =>
                 {
                     b.HasOne("AtlasWeb.Models.Kullanici", "Kullanici")
@@ -568,12 +1528,17 @@ namespace AtlasWeb.Migrations
             modelBuilder.Entity("AtlasWeb.Models.Stok", b =>
                 {
                     b.HasOne("AtlasWeb.Models.Birim", "Birim")
-                        .WithMany()
+                        .WithMany("Stoklar")
                         .HasForeignKey("BirimId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Birim");
+                });
+
+            modelBuilder.Entity("AtlasWeb.Models.Birim", b =>
+                {
+                    b.Navigation("Stoklar");
                 });
 
             modelBuilder.Entity("AtlasWeb.Models.CariTip", b =>
@@ -581,8 +1546,15 @@ namespace AtlasWeb.Migrations
                     b.Navigation("CariKartlar");
                 });
 
+            modelBuilder.Entity("AtlasWeb.Models.Fatura", b =>
+                {
+                    b.Navigation("Detaylar");
+                });
+
             modelBuilder.Entity("AtlasWeb.Models.Kullanici", b =>
                 {
+                    b.Navigation("SifreSifirlamaTokenleri");
+
                     b.Navigation("Tokens");
                 });
 #pragma warning restore 612, 618
